@@ -1,0 +1,30 @@
+{
+  "name": "zendro",
+  "version": "1.0.0",
+  "description": "Zendro Command Line Interface (CLI)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wunderbarr/zendro.git"
+  },
+  "author": "Dan Wang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wunderbarr/zendro/issues"
+  },
+  "homepage": "https://github.com/wunderbarr/zendro#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^6.1.0",
+    "download-git-repo": "^3.0.2",
+    "figlet": "^1.5.0",
+    "handlebars": "^4.7.6",
+    "ora": "^5.1.0"
+  },
+  "bin": {
+    "zendro": "./bin/index.js"
+  }
+}
