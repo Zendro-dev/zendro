@@ -8,6 +8,9 @@ program
     .description('init Zendro')
     .action(require('../lib/init'))
 
-program.command('new <name>')
+program
+    .command('new <name>')
+    .description('create new Zendro project')
+    .action(require('../lib/new'))
 
 program.parse(process.argv);
