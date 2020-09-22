@@ -29,6 +29,7 @@ program
     .requiredOption('-d, --data_model_definitions <def_path>', 
     'path to a input directory or a JSON file', collect, [])
     .option('-o, --output_dir <output_dir>', 'output directory')
+    .option('-D, --createBaseDirs', 'create base directories', false)
     .action(require('../lib/generate_spa'))
 
 program.parse(process.argv)
