@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// console.log( "Hello!" );
-const { program } = require('commander');
-program.version(require('../package').version);
+const { program } = require('commander')
+const collect = (value, previous) => {return previous.concat([value])}
+
+program.version(require('../package').version)
 
 program
     .command('init')
@@ -13,4 +14,21 @@ program
     .description('create new Zendro project')
     .action(require('../lib/new'))
 
-program.parse(process.argv);
+program
+    .command('generate-gqs <name>')
+    .description('generate graphql-server code')
+    .requiredOption('-d, --data_model_definitions <def_path>', 
+    'path to a input directory or a JSON file', collect, [])
+    .option('-o, --output_dir <output_dir>', 'output directory')
+    .option('-m, --migrations', 'generate migrations', false)
+    .action(require('../lib/generate_gqs'))
+
+program
+    .command('generate-spa <name>')
+    .description('generate single page application code')
+    .requiredOption('-d, --data_model_definitions <def_path>', 
+    'path to a input directory or a JSON file', collect, [])
+    .option('-o, --output_dir <output_dir>', 'output directory')
+    .action(require('../lib/generate_spa'))
+
+program.parse(process.argv)

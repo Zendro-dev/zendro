@@ -2,6 +2,9 @@ const { promisify } = require('util')
 const download = promisify(require('download-git-repo'));
 const ora = require('ora');
 const { spawn } = require('child_process');
+const chalk = require('chalk')
+
+module.exports.log = content => console.log(chalk.magentaBright(content))
 
 module.exports.clone = async (repo, desc) => {
     const process = ora(`Download ${repo}`);
