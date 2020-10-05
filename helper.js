@@ -59,3 +59,46 @@ module.exports.spawn_log = async (unref, ...args) => {
         })
     })
 }
+
+/**
+ * Execute Shell commands and save the output as JS string
+ * @param {string} cmd1 the first command
+ * @param {[string]} arg1 the arguments for the first command
+ * @param {string} cmd2 the second command
+ * @param {[string]} arg1 the arguments for the second command
+ * @param {string} cmd3 the third command
+ * @param {[string]} arg1 the arguments for the third command
+ * @returns {string} result after the execution of commands
+ */
+module.exports.spawn_string = async (cmd1, arg1, cmd2, arg2, cmd3, arg3) => {
+    return new Promise( (resolve, reject) => {
+        const proc1 = spawn(cmd1, arg1)
+        const proc2 = spawn(cmd2, arg2)
+        const proc3 = spawn(cmd3, arg3)
+
+        let output = ''
+
+        proc1.stdout.on('data', data => proc2.stdin.write(data))         
+        proc1.stderr.on('data', data => console.error(`${cmd1} stderr: ${data}`))          
+        proc1.on('close', code => {
+            if (code !== 0) {
+                console.log(`${cmd1} process exited with code ${code}`)
+            }
+            proc2.stdin.end()
+        })
+
+        proc2.stdout.on('data', data => proc3.stdin.write(data))         
+        proc2.stderr.on('data', data => console.error(`${cmd2} stderr: ${data}`))          
+        proc2.on('close', code => {
+            if (code !== 0) {
+                console.log(`${cmd1} process exited with code ${code}`)
+            }
+            proc3.stdin.end()
+        })
+
+        proc3.stdout.on('data', data => output += data.toString())          
+        proc3.on('close', () => resolve(output))
+        proc3.on('error', err => reject(err))
+
+    })
+}

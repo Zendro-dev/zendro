@@ -40,4 +40,9 @@ program
     .option('-i, --install_package', 'install packages', false)
     .action(require('../lib/start'))
 
+program
+    .command('stop [service...]')
+    .description('stop Zendro App')
+    .action(require('../lib/stop'))
+
 program.parse(process.argv)
