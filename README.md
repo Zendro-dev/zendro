@@ -31,8 +31,11 @@ Generate code for single-page-app.
 
 ### zendro dockerize 
 Dockerize Zendro App with example docker files.
-1. set the host of Postgres as sdb_postgres
-2. execute docker-compose command
+1. **-u** or **--up**: start docker service
+* set the host of Postgres as sdb_postgres
+* execute `docker-compose up`
+2. **-d** or **--down**: stop docker service
+* execute `docker-compose down`
 
 ### zendro start [service...]
 Start Zendro service.
@@ -65,4 +68,6 @@ Stop Zendro service.
    
 6. stop all running service by executing **zendro stop**.
 
-7. If you don't have local database, you can play with Zendro by dockerizing example Zendro App. The command would be **zendro dockerize**.
+7. If you don't have local database, you can play with Zendro by dockerizing example Zendro App. The command would be **zendro dockerize -u**.
+
+8. When you want to stop docker service, press CTRL+C once, then execute **zendro dockerize -d**.
