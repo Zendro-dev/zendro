@@ -32,6 +32,8 @@ program
 program
     .command('dockerize')
     .description('dockerize Zendro App')
+    .option('-u, --up', 'start docker service', false)
+    .option('-d, --down', 'stop docker service', false)
     .action(require('../lib/dockerize'))
 
 program
