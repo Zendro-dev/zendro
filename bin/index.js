@@ -8,7 +8,6 @@ program
     .command('new <name>')
     .description('create new Zendro project')
     .option('-d, --dockerize', 'include docker config files', false)
-    .option('-u, --update_code_generators', 'update code generators', false)
     .action(require('../lib/new'))
 
 program
