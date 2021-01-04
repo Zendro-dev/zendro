@@ -9,9 +9,8 @@ Start a new application:
 2. set up
 3. copy seeders to graphql-server
 4. **-d** or **--dockerize**: keep Dockerfiles (default: false). Set to be true, keep Dockerfiles. Default: remove Dockerfiles and initUserDb.sh
-5. **-u** or **--update_code_generators**: update code generators (default: false). Set to be true, use npm to update code generators
-6. a welcome interface
-7. hints: edit config files if necessary
+5. a welcome interface
+6. hints: edit config files if necessary
 * ./graphql-server/config/data_models_storage_config.json 
 * ./graphql-server/config/globals.js
 * ./single-page-app/src/config/globals.js
@@ -52,7 +51,7 @@ Stop Zendro service.
 2. stop specified service with abbreviations
 
 ## Running Examples
-1. create a new application (**test**). Keep docker files (**-d**) and update the latest stable code generators (**-u**) by executing  __zendro new -d -u test__. If you want to modify some environment variables, please edit relevant files, which are also specified in the console.
+1. create a new application (**test**). Keep docker files (**-d**) by executing  __zendro new -d test__. If you want to modify some environment variables, please edit relevant files, which are also specified in the console.
 * ./graphql-server/config/data_models_storage_config.json 
 * ./graphql-server/config/globals.js
 * ./single-page-app/src/config/globals.js
