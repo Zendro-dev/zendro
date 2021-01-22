@@ -1,10 +1,9 @@
-const { promisify } = require('util')
-const download = promisify(require('download-git-repo'))
 const ora = require('ora')
 const { spawn } = require('child_process')
 const chalk = require('chalk')
 const fs = require('fs')
-
+const { promisify } = require('util')
+const download = promisify(require('download-git-repo'))
 /**
  * Write log to console with magenta color.
  * @param {string} content the log content
@@ -18,10 +17,13 @@ module.exports.log = content => console.log(chalk.magentaBright(content))
  */
 module.exports.clone = async (repo, desc) => {
     const process = ora(`Download ${repo}`);
+    console.log(desc)
+
     process.start();
     try {
         await download(repo, desc)
     } catch (error) {
+        console.log(error)
         process.fail()
     }
     process.succeed()
@@ -41,7 +43,6 @@ module.exports.spawn_console = async (...args) => {
         })
     })
 }
-
 
 /**
  * Execute Shell command, separate subprocess if necessary

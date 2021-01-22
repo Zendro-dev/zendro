@@ -13,7 +13,8 @@ program
 program
     .command('generate-gqs')
     .description('generate graphql-server code')
-    .requiredOption('-d, --data_model_definitions <def_path>', 
+    .allowUnknownOption()
+    .requiredOption('-f, --data_model_definitions <def_path>', 
     'path to a input directory or a JSON file', collect, [])
     .option('-o, --output_dir <output_dir>', 'output directory')
     .option('-m, --migrations', 'generate migrations', false)
@@ -22,7 +23,8 @@ program
 program
     .command('generate-spa')
     .description('generate single page application code')
-    .requiredOption('-d, --data_model_definitions <def_path>', 
+    .allowUnknownOption()
+    .requiredOption('-f, --data_model_definitions <def_path>', 
     'path to a input directory or a JSON file', collect, [])
     .option('-o, --output_dir <output_dir>', 'output directory')
     .option('-D, --createBaseDirs', 'create base directories', false)

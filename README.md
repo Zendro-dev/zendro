@@ -5,12 +5,13 @@ A CLI for ScienceDbStarterPack.
 ## Commands
 ### zendro new <your_application_name>
 Start a new application:
-1. download starter pack to folder <your_application_name>
-2. set up
-3. copy seeders to graphql-server
-4. **-d** or **--dockerize**: keep Dockerfiles (default: false). Set to be true, keep Dockerfiles. Default: remove Dockerfiles and initUserDb.sh
-5. a welcome interface
-6. hints: edit config files if necessary
+1. copy starter pack to folder <your_application_name>
+2. clone single-page-app/graphql-server/graphiql-auth repositories from GitHub (version: see zendro_dependencies.json)
+3. install packages for each repository
+4. copy seeders to graphql-server
+5. **-d** or **--dockerize**: keep Dockerfiles (default: false). Set to be true, keep Dockerfiles. Default: remove Dockerfiles and initUserDb.sh
+6. a welcome interface
+7. hints: edit config files if necessary
 * ./graphql-server/config/data_models_storage_config.json 
 * ./graphql-server/config/globals.js
 * ./single-page-app/src/config/globals.js
@@ -18,15 +19,17 @@ Start a new application:
 
 ### zendro generate-gqs
 Generate code for graphql-server.
-1. **-d** or **--data_model_definitions**: input directory or a JSON file
+1. **-f** or **--data_model_definitions**: input directory or a JSON file
 2. **-o** or **--output_dir**: output directory
 3. **-m** or **--migrations**: generate migrations (default: false). Set to be true, generate migrations
+4. allow unknown options
 
 ### zendro generate-spa
 Generate code for single-page-app.
-1. **-d** or **--data_model_definitions**: input directory or a JSON file
+1. **-f** or **--data_model_definitions**: input directory or a JSON file
 2. **-o** or **--output_dir**: output directory
 3. **-D** or **--createBaseDirs**: create base directories (default: false). Set to be true, create directories
+4. allow unknown options
 
 ### zendro dockerize 
 Dockerize Zendro App with example docker files.
@@ -43,7 +46,6 @@ Start Zendro service.
 * gqs: graphql-server
 * spa: single-page-app
 * giql:graphiql
-3. **-i** or **--install_package**: install packages at the first time (default:false). Set to be true, install packages.
 
 ### zendro stop [service…]
 Stop Zendro service.
@@ -59,11 +61,11 @@ Stop Zendro service.
   
 2. __cd test__
 
-3. generate graphql-server code and migrations by executing __zendro generate-gqs -d ../schema -m__.
+3. generate graphql-server code and migrations by executing __zendro generate-gqs -f ../schema -m__
 
-4. generate single-page-app code by executing __zendro generate-spa -d ../schema__
+4. generate single-page-app code by executing __zendro generate-spa -f ../schema__
 
-5. install all necessary packages for all service and start all service by executing **zendro start -i**. Default database would be a local Postgres database. Its configuration is in this file: *./graphql-server/config/data_models_storage_config.json*.
+5. install all necessary packages for all service and start all service by executing **zendro start**. Default database would be a local Postgres database. Its configuration is in this file: *./graphql-server/config/data_models_storage_config.json*.
    
 6. stop all running service by executing **zendro stop**.
 
