@@ -1,6 +1,17 @@
 # Zendro Command Line Interface (CLI)
 ## Introduction
-A CLI for ScienceDbStarterPack.
+A CLI for building Zendro Sandox.
+
+## Installation
+A quick installation would be this command: `npm install -g Zendro-dev/zendro`.
+However, if you would like to customize your Zendro CLI, you can set it up as the following:
+```
+$ git clone https://github.com/Zendro-dev/zendro.git
+$ cd zendro
+$ npm install
+$ npm link
+```
+For example, you can customize the version of each repository by editing `zendro_dependencies.json` file in your local Zendro CLI repository.
 
 ## Commands
 ### zendro new <your_application_name>
