@@ -1,48 +1,54 @@
 # Zendro Command Line Interface (CLI)
 ## Introduction
-A CLI for ScienceDbStarterPack.
+A CLI for building Zendro Sandox.
+
+## Installation
+A quick installation would be this command: `npm install -g Zendro-dev/zendro`.
+However, if you would like to customize your Zendro CLI, you can set it up as the following:
+```
+$ git clone https://github.com/Zendro-dev/zendro.git
+$ cd zendro
+$ npm install
+$ npm link
+```
+For example, you can customize the version of each repository by editing `zendro_dependencies.json` file in your local Zendro CLI repository.
 
 ## Commands
 ### zendro new <your_application_name>
 Start a new application:
 1. copy starter pack to folder <your_application_name>
-2. clone single-page-app/graphql-server/graphiql-auth repositories from GitHub (version: see zendro_dependencies.json)
+2. clone `single-page-app` & `graphql-server` & `graphiql-auth` repositories from GitHub (version: see `zendro_dependencies.json`)
 3. install packages for each repository
-4. copy seeders to graphql-server
+4. copy seeders to graphql-server and create templates of environment variables for each repository
 5. **-d** or **--dockerize**: keep Dockerfiles (default: false). Set to be true, keep Dockerfiles. Default: remove Dockerfiles and initUserDb.sh
 6. a welcome interface
 7. hints: edit config files if necessary
-* ./graphql-server/config/data_models_storage_config.json 
-* ./graphql-server/config/globals.js
-* ./single-page-app/src/config/globals.js
-* ./graphiql-auth/src/config/globals.js
+* without docker setup: ./graphql-server/config/data_models_storage_config.json
+* with docker setup: ./config/data_models_storage_config.json
+* ./graphql-server/.env
+* SPA in development mode: ./single-page-app/.env.development
+* SPA in production mode: ./single-page-app/.env.production
+* ./graphiql-auth/.env
 
 ### zendro generate-gqs
 Generate code for graphql-server.
-1. **-f** or **--data_model_definitions**: input directory or a JSON file
-2. **-o** or **--output_dir**: output directory
+1. **-f** or **--data_model_definitions**: input directory or a JSON file (default: current directory path + "/data_model_definitions")
+2. **-o** or **--output_dir**: output directory (default: current directory path + "/graphql_server")
 3. **-m** or **--migrations**: generate migrations (default: false). Set to be true, generate migrations
-4. allow unknown options
-
-### zendro generate-spa
-Generate code for single-page-app.
-1. **-f** or **--data_model_definitions**: input directory or a JSON file
-2. **-o** or **--output_dir**: output directory
-3. **-D** or **--createBaseDirs**: create base directories (default: false). Set to be true, create directories
 4. allow unknown options
 
 ### zendro dockerize 
 Dockerize Zendro App with example docker files.
 1. **-u** or **--up**: start docker service
 * set the host of Postgres as sdb_postgres
-* execute `docker-compose up`
 2. **-d** or **--down**: stop docker service
-* execute `docker-compose down`
+3. **-p** or **--production**: start or stop SPA with production mode
 
 ### zendro start [service...]
 Start Zendro service.
 1. default: start all service
-2. start specified service with the following abbreviations:
+2. **-p** or **--production**: start SPA with production mode
+3. start specified service with the following abbreviations:
 * gqs: graphql-server
 * spa: single-page-app
 * giql:graphiql
@@ -50,34 +56,35 @@ Start Zendro service.
 ### zendro stop [service…]
 Stop Zendro service.
 1. default: stop all service
-2. stop specified service with abbreviations
+2. **-p** or **--production**: stop SPA with production mode
+3. stop specified service with abbreviations
 
-## Running Examples
-1. create a new application (**test**). Keep docker files (**-d**) by executing  __zendro new -d test__. If you want to modify some environment variables, please edit relevant files, which are also specified in the console.
-* ./graphql-server/config/data_models_storage_config.json 
-* ./graphql-server/config/globals.js
-* ./single-page-app/src/config/globals.js
-* ./graphiql-auth/src/config/globals.js
+## A Running Example
+1. create a new application (**test**). Keep docker files (**-d**) by executing  __`zendro new -d test`__. If you want to modify some environment variables, please edit relevant files, which are also specified in the console.
+* without docker setup: ./graphql-server/config/data_models_storage_config.json
+* with docker setup: ./config/data_models_storage_config.json
+* ./graphql-server/.env
+* SPA in development mode: ./single-page-app/.env.development
+* SPA in production mode: ./single-page-app/.env.production
+* ./graphiql-auth/.env
   
 2. __cd test__
 
-3. generate graphql-server code and migrations by executing __zendro generate-gqs -f ../schema -m__
+3. add JSON files for model definitions in `./data_model_definitions` folder and generate graphql-server code and migrations by executing __`zendro generate-gqs -m`__
 
-4. generate single-page-app code by executing __zendro generate-spa -f ../schema__
-
-5. install all necessary packages for all service and start all service by executing **zendro start**. Default database would be a local Postgres database. Its configuration is in this file: *./graphql-server/config/data_models_storage_config.json*.
+4. start all service by executing **`zendro start`**. Default database would be a local Postgres database. Its configuration is in this file: `./graphql-server/config/data_models_storage_config.json`. If user would like to add other storage types, it is necessary to edit this file. Meanwhile, if you would like to use SPA with production mode, please add `-p` option.
    
-6. stop all running service by executing **zendro stop**.
+5. stop all running service by executing **`zendro stop`**. Besides, if you would like to stop SPA with production mode, please add `-p` option.
 
-7. If you don't have local database, you can play with Zendro by dockerizing example Zendro App. The command would be **zendro dockerize -u**.
+6. If you don't have local database, you can play with Zendro by dockerizing example Zendro App. The command would be **`zendro dockerize -u`**. Moreover, if you would like to use SPA with production mode, please execute **`zendro dockerize -u -p`**. Besides, the default username is `admin@zen.dro` and the corresponding password is `admin`. 
 
-8. When you want to stop docker service, press CTRL+C once, then execute **zendro dockerize -d**.
+7. When you want to stop docker service, press CTRL+C once, then execute **`zendro dockerize -d`**. In addition, if your SPA is in production mode, please execute **`zendro dockerize -d -p`**. 
 
 ## Contributions
 Zendro is the product of a joint effort between the Forschungszentrum Jülich, Germany and the Comisión Nacional para el Conocimiento y Uso de la Biodiversidad, México, to generate a tool that allows efficiently building data warehouses capable of dealing with diverse data generated by different research groups in the context of the FAIR principles and multidisciplinary projects. The name Zendro comes from the words Zenzontle and Drossel, which are Mexican and German words denoting a mockingbird, a bird capable of “talking” different languages, similar to how Zendro can connect your data warehouse from any programming language or data analysis pipeline.
 
 ### Zendro contributors in alphabetical order
-Francisca Acevedo<sup>1</sup>, Vicente Arriaga<sup>1</sup>, Katja Dohm<sup>3</sup>, Constantin Eiteneuer<sup>2</sup>, Sven Fahrner<sup>2</sup>, Frank Fischer<sup>4</sup>, Asis Hallab<sup>2</sup>, Alicia Mastretta-Yanes<sup>1</sup>, Roland Pieruschka<sup>2</sup>, Alejandro Ponce<sup>1</sup>, Yaxal Ponce<sup>2</sup>, Francisco Ramírez<sup>1</sup>, Irene Ramos<sup>1</sup>, Bernardo Terroba<sup>1</sup>, Tim Rehberg<sup>3</sup>, Verónica Suaste<sup>1</sup>, Björn Usadel<sup>2</sup>, David Velasco<sup>2</sup>, Thomas Voecking<sup>3</sup>
+Francisca Acevedo<sup>1</sup>, Vicente Arriaga<sup>1</sup>, Katja Dohm<sup>3</sup>, Constantin Eiteneuer<sup>2</sup>, Sven Fahrner<sup>2</sup>, Frank Fischer<sup>4</sup>, Asis Hallab<sup>2</sup>, Alicia Mastretta-Yanes<sup>1</sup>, Roland Pieruschka<sup>2</sup>, Alejandro Ponce<sup>1</sup>, Yaxal Ponce<sup>2</sup>, Francisco Ramírez<sup>1</sup>, Irene Ramos<sup>1</sup>, Bernardo Terroba<sup>1</sup>, Tim Rehberg<sup>3</sup>, Verónica Suaste<sup>1</sup>, Björn Usadel<sup>2</sup>, David Velasco<sup>2</sup>, Thomas Voecking<sup>3</sup>, Dan Wang<sup>2</sup>
 
 #### Author affiliations
 1. CONABIO - Comisión Nacional para el Conocimiento y Uso de la Biodiversidad, México
