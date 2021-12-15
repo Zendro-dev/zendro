@@ -13,18 +13,18 @@ program
   .action(require("../lib/new"));
 
 program
-  .command("generate-gqs")
+  .command("generate")
   .description("generate graphql-server code")
   .allowUnknownOption()
   .option(
     "-f, --data_model_definitions <def_path>",
     "path to a input directory or a JSON file",
     collect,
-    [process.cwd() + "/data_model_definitions"]
+    []
   )
   .option("-o, --output_dir <output_dir>", "output directory")
   .option("-m, --migrations", "generate migrations", false)
-  .action(require("../lib/generate_gqs"));
+  .action(require("../lib/generate"));
 
 program
   .command("dockerize")
@@ -45,5 +45,27 @@ program
   .description("stop Zendro App")
   .option("-p, --prod", "production mode", false)
   .action(require("../lib/stop"));
+
+program
+  .command("migration:generate")
+  .description("generate migrations")
+  .option(
+    "-f, --data_model_definitions <def_path>",
+    "path to a input directory or a JSON file",
+    collect,
+    []
+  )
+  .option("-o, --output_dir <output_dir>", "output directory")
+  .action(require("../lib/migration_generate"));
+
+program
+  .command("migration:up")
+  .description("execute migrations")
+  .action(require("../lib/migration_up"));
+
+program
+  .command("migration:down")
+  .description("drop the last executed migration")
+  .action(require("../lib/migration_down"));
 
 program.parse(process.argv);
