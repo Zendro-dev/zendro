@@ -30,7 +30,7 @@ Start a new application:
 * SPA in production mode: ./single-page-app/.env.production
 * ./graphiql-auth/.env
 
-### zendro generate-gqs
+### zendro generate
 Generate code for graphql-server.
 1. **-f** or **--data_model_definitions**: input directory or a JSON file (default: current directory path + "/data_model_definitions")
 2. **-o** or **--output_dir**: output directory (default: current directory path + "/graphql_server")
@@ -42,12 +42,12 @@ Dockerize Zendro App with example docker files.
 1. **-u** or **--up**: start docker service
 * set the host of Postgres as sdb_postgres
 2. **-d** or **--down**: stop docker service
-3. **-p** or **--production**: start or stop SPA with production mode
+3. **-p** or **--production**: start or stop GQS and SPA with production mode
 
 ### zendro start [service...]
 Start Zendro service.
 1. default: start all service
-2. **-p** or **--production**: start SPA with production mode
+2. **-p** or **--production**: start GQS and SPA with production mode
 3. start specified service with the following abbreviations:
 * gqs: graphql-server
 * spa: single-page-app
@@ -56,10 +56,24 @@ Start Zendro service.
 ### zendro stop [service…]
 Stop Zendro service.
 1. default: stop all service
-2. **-p** or **--production**: stop SPA with production mode
+2. **-p** or **--production**: stop GQS and SPA with production mode
 3. stop specified service with abbreviations
 
-## A Running Example
+### zendro migration:generate
+Generate migration code for graphql-server.
+1. **-f** or **--data_model_definitions**: input directory or a JSON file (default: current directory path + "/../data_model_definitions")
+2. **-o** or **--output_dir**: output directory (default: current directory path + "/migrations")
+Note: all generated migrations would be stored in a directory called `migrations`.
+
+### zendro migration:up
+Execute migrations which are generated after the last executed migration.
+
+Note: the last executed migration is recorded in `zendro_migration_state.json` and the log of migrations is in the file `zendro_migration_log.json`.
+
+### zendro migration:down
+Drop the last executed migration.
+
+## A Running Example for setting up a Zendro Instance
 1. create a new application (**test**). Keep docker files (**-d**) by executing  __`zendro new -d test`__. If you want to modify some environment variables, please edit relevant files, which are also specified in the console.
 * without docker setup: ./graphql-server/config/data_models_storage_config.json
 * with docker setup: ./config/data_models_storage_config.json
@@ -70,15 +84,21 @@ Stop Zendro service.
   
 2. __cd test__
 
-3. add JSON files for model definitions in `./data_model_definitions` folder and generate graphql-server code and migrations by executing __`zendro generate-gqs -m`__
+3. add JSON files for model definitions in `./data_model_definitions` folder and generate graphql-server (GQS) code and migrations by executing __`zendro generate -m`__
 
-4. start all service by executing **`zendro start`**. Default database would be a local Postgres database. Its configuration is in this file: `./graphql-server/config/data_models_storage_config.json`. If user would like to add other storage types, it is necessary to edit this file. Meanwhile, if you would like to use SPA with production mode, please add `-p` option.
+4. start all service by executing **`zendro start`**. Default database would be a local Postgres database. Its configuration is in this file: `./graphql-server/config/data_models_storage_config.json`. If user would like to add other storage types, it is necessary to edit this file. Meanwhile, if you would like to use GQS and SPA with production mode, please add `-p` option.
    
-5. stop all running service by executing **`zendro stop`**. Besides, if you would like to stop SPA with production mode, please add `-p` option.
+5. stop all running service by executing **`zendro stop`**. Besides, if you would like to stop GQS and SPA with production mode, please add `-p` option.
 
-6. If you don't have local database, you can play with Zendro by dockerizing example Zendro App. The command would be **`zendro dockerize -u`**. Moreover, if you would like to use SPA with production mode, please execute **`zendro dockerize -u -p`**. Besides, the default username is `admin@zen.dro` and the corresponding password is `admin`. 
+6. If you don't have local database, you can play with Zendro by dockerizing example Zendro App. The command would be **`zendro dockerize -u`**. Moreover, if you would like to use GQS and SPA with production mode, please execute **`zendro dockerize -u -p`**. Besides, the default username is `admin@zen.dro` and the corresponding password is `admin`. 
 
-7. When you want to stop docker service, press CTRL+C once, then execute **`zendro dockerize -d`**. In addition, if your SPA is in production mode, please execute **`zendro dockerize -d -p`**. 
+7. When you want to stop docker service, press CTRL+C once, then execute **`zendro dockerize -d`**. In addition, if your GQS and SPA is in production mode, please execute **`zendro dockerize -d -p`**. 
+
+### Example for Migrations
+If a user has new data model definitions, it is convinient to use Zendro CLI for dealing with migrations. And the following procedure shows how to generate, perform or drop migrations:
+1. in `graphql-server` folder, execute `zendro migration:generate -f <data_model_definitions>`, then migrations would be generated automatically in `/graphql-server/migrations` folder. By default, every migration file would have two functions, namely `up` and `down` function. In specifically, in `up` function a table or indices would be created and in `down` function the existing table or indices would be deleted. Besides, user can customize their migration functions.
+2. in `graphql-server` folder, it is possible to perform new generated migrations, which are generated after the last executed migration, by executing `zendro migration:up`. After that the last executed migration and migration log would be updated.
+3. in `graphql-server` folder, the last executed migration could be dropped by executing `zendro migration:down`. Then the last executed migration would be updated as the last successfully executed migration before the dropped migration. And the dropped operation would be recorded in the migration log. If there are some remaining records and associations in the table, by default an error would be throwed. If a user still would like to delete all of them, then the user needs set environment variable `DOWN_MIGRATION` to `true` in `/graphql-server/.env` file and re-execute this down-migration. 
 
 ## Contributions
 Zendro is the product of a joint effort between the Forschungszentrum Jülich, Germany and the Comisión Nacional para el Conocimiento y Uso de la Biodiversidad, México, to generate a tool that allows efficiently building data warehouses capable of dealing with diverse data generated by different research groups in the context of the FAIR principles and multidisciplinary projects. The name Zendro comes from the words Zenzontle and Drossel, which are Mexican and German words denoting a mockingbird, a bird capable of “talking” different languages, similar to how Zendro can connect your data warehouse from any programming language or data analysis pipeline.
