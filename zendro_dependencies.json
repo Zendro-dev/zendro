@@ -1,5 +1,5 @@
 {
-    "single-page-app": "latest-stable",
-    "graphql-server": "latest-stable",
-    "graphiql-auth": "latest-stable"
+    "single-page-app": "OAuth2",
+    "graphql-server": "OAuth2",
+    "graphiql-auth": "OAuth2-next"
 }

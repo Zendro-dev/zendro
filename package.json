@@ -17,12 +17,12 @@
   },
   "homepage": "https://github.com/Zendro-dev/zendro#readme",
   "dependencies": {
-    "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#latest-stable",
+    "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#OAuth2",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
     "download-git-repo": "^3.0.2",
     "figlet": "^1.5.0",
-    "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen#latest-stable",
+    "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen",
     "ora": "^5.1.0"
   },
   "bin": {
