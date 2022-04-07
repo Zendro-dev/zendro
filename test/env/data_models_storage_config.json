@@ -1,0 +1,7 @@
+{
+  "default-sql": {
+    "storageType": "sql",
+    "dialect": "sqlite",
+    "storage": "../../env/test.db"
+  }
+}

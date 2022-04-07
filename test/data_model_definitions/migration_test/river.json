@@ -1,0 +1,24 @@
+{
+  "model" : "river",
+  "storageType" : "sql",
+  "attributes" : {
+    "river_id": "String",
+    "name" : "String",
+    "length" : "Int",
+    "country_ids": "[String]"
+  },
+  "associations": {
+    "countries": {
+      "type": "many_to_many",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "rivers",
+      "target": "country",
+      "targetKey": "river_ids",
+      "sourceKey": "country_ids",
+      "keysIn": "river",
+      "targetStorageType": "sql"
+    }
+  },
+  "indices": ["name"],
+  "internalId": "river_id"
+}
