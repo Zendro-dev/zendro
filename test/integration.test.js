@@ -86,7 +86,9 @@ describe("Zendro CLI integration tests", () => {
         cwd: process.cwd() + `/test/project/graphiql-auth`,
       }
     );
-
+    await spawn_console("cp", [`.env.migration.sample`, ".env.migration"], {
+      cwd: process.cwd(),
+    });
     const graphiql_auth = await readdir(
       process.cwd() + "/test/project/graphiql-auth"
     );

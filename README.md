@@ -88,7 +88,12 @@ set up a sandbox with default data models and SQLite
 
 ## A Quick Example for setting up a Zendro Sandbox
 1. By default, three data models with associations would be used for this sandbox, namely city, country and river. And a default SQLite database would be used.
-2. Execute `zendro set-up -d <name>`, then the default configuration would be there.
+2. Execute `zendro set-up -d <name>`, edit NEXTAUTH_SECRET to your expect secret and modify other environment variables if necessary in the following config files:
+* SPA in development mode: ./single-page-app/.env.development
+* SPA in production mode: ./single-page-app/.env.production
+* GraphiQL in development mode: ./graphql-server/.env.development 
+* GraphiQL in production mode: ./graphql-server/.env.production
+If you would like to upload a file to a remote server, please consider the template `.env.migration.sample`, create a new file `.env.migration` and modify relevant environment variables.
 3. Execute `zendro dockerize -u -p`, then zendro instance with production mode would start.
 4. Execute `zendro dockerize -d -p -v`, then zendro instance would stop and all volumes would be removed.
 
@@ -99,19 +104,21 @@ set up a sandbox with default data models and SQLite
 * ./graphql-server/.env
 * SPA in development mode: ./single-page-app/.env.development
 * SPA in production mode: ./single-page-app/.env.production
-* ./graphiql-auth/.env
-  
+* GraphiQL in development mode: ./graphql-server/.env.development 
+* GraphiQL in production mode: ./graphql-server/.env.production
+If you would like to upload a file to a remote server, please consider the template `.env.migration.sample`, create a new file `.env.migration` and modify relevant environment variables.
+
 2. __cd test__
 
 3. add JSON files for model definitions in `./data_model_definitions` folder and generate graphql-server (GQS) code and migrations by executing __`zendro generate -m`__
 
-4. if you prefer to use local setup with keycloak, you can start all service by executing **`zendro start`**. Default database would be a local Postgres database. Its configuration is in this file: `./graphql-server/config/data_models_storage_config.json`. If user would like to add other storage types, it is necessary to edit this file. Meanwhile, if you would like to use production mode, please add `-p` option.
+4. if you prefer to use local setup with Keycloak, you can start all service by executing **`zendro start`**. And an example configuration file for Keycloak is `./test/env/keycloak.conf`. By default Keycloak would use H2 database to store information. Moreover, the default database for records in Zendro would be a SQLite3 database. Its configuration is in this file: `./graphql-server/config/data_models_storage_config.json`. If user would like to add other storage types, it is necessary to edit this file. Meanwhile, if you would like to use production mode, please add `-p` option.
    
 5. stop all running service by executing **`zendro stop`**. Besides, if you would like to stop production mode, please add `-p` option.
 
 6. If you don't have local setup with keycloak, you can play with Zendro by dockerizing example Zendro App. The command would be **`zendro dockerize -u`**. Moreover, if you would like to use production mode, please execute **`zendro dockerize -u -p`**. Besides, the default username is `zendro-admin` and the corresponding password is `admin`. 
 
-7. When you want to stop docker service, press CTRL+C once, then execute **`zendro dockerize -d`**. In addition, if your services are in production mode, please execute **`zendro dockerize -d -p`**. 
+7. When you want to stop docker service, you can execute **`zendro dockerize -d`**. In addition, if your services are in production mode, please execute **`zendro dockerize -d -p`**. 
 
 ## Example for Migrations
 If a user has new data model definitions, it is convinient to use Zendro CLI for dealing with migrations. And the following procedure shows how to generate, perform or drop migrations:
@@ -124,7 +131,7 @@ If a user has new data model definitions, it is convinient to use Zendro CLI for
 Data to populate each model in your schema must be in a separate CSV file, following the format requirements below:
 1. Column names in the first row must correspond to model attributes.
 2. Empty values should be represented as `"NULL"`.
-3. All fields should be quoted by `"`. However, if field delimiter and array delimiter do not occur in fields with String type, namely characters could be splitted without ambiguity, then each field could not be quoted. For example, if the field delimiter is comma, and one String field is like `Zendro, excellent!`. Without the quotation mark, this field would be splitted as two fields. So in such case these String fields must be quoted.
+3. All fields should be quoted by `"`. However, if field delimiter and array delimiter do not occur in fields with String type, namely characters could be split without ambiguity, then no quotes are necessary. For example, if the field delimiter is `,` and one String field is like `Zendro, excellent!`, then without the quotation mark, this field will be split as two fields. So in such case these String fields must be quoted.
 4. Default configuration: BATCH_SIZE=20, RECORD_DELIMITER="\n", FIELD_DELIMITER=",", ARRAY_DELIMITER=";". They can be changed in the config file for environment variables.
 5. Date and time formats must follow the [RFC 3339](https://tools.ietf.org/html/rfc3339) standard.
 
