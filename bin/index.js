@@ -32,6 +32,7 @@ program
   .option("-u, --up", "start docker service", false)
   .option("-d, --down", "stop docker service", false)
   .option("-p, --prod", "production mode", false)
+  .option("-v, --volume", "remove volume and migration log", false)
   .action(require("../lib/dockerize"));
 
 program
@@ -68,4 +69,18 @@ program
   .description("drop the last executed migration")
   .action(require("../lib/migration_down"));
 
+program
+  .command("bulk-create")
+  .description("parse input file and upload parsed records")
+  .option("-f, --file_path <file_path>", "file path")
+  .option("-n, --model_name <model_name>", "model name")
+  .option("-s, --sheet_name <sheet_name>", "sheet name")
+  .option("-r, --remote_server", "upload to a remote server", false)
+  .action(require("../lib/bulk_create"));
+
+program
+  .command("set-up <name>")
+  .description("set up a sandbox with default data models and SQLite")
+  .option("-d, --dockerize", "include docker config files", false)
+  .action(require("../lib/setup"));
 program.parse(process.argv);
