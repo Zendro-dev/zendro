@@ -27,7 +27,7 @@
     "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen#latest-stable",
     "ora": "^5.1.0",
     "xlsx": "^0.17.5",
-    "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create",
+    "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create#latest-stable",
     "inflection": "^1.12.0"
   },
   "devDependencies": {
