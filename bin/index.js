@@ -79,6 +79,14 @@ program
   .action(require("../lib/bulk_create"));
 
 program
+  .command("bulk-download")
+  .description("download records into a CSV file")
+  .option("-f, --file_path <file_path>", "path for storing file")
+  .option("-n, --model_name <model_name>", "model name")
+  .option("-r, --remote_server", "download from a remote server", false)
+  .action(require("../lib/bulk_download"));
+
+program
   .command("set-up <name>")
   .description("set up a sandbox with default data models and SQLite")
   .option("-d, --dockerize", "include docker config files", false)

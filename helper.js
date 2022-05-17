@@ -1,7 +1,6 @@
 const ora = require("ora");
 const { spawn } = require("child_process");
 const chalk = require("chalk");
-const fs = require("fs");
 const { promisify } = require("util");
 const download = promisify(require("download-git-repo"));
 const axios = require("axios");
