@@ -26,6 +26,7 @@
     "figlet": "^1.5.0",
     "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen#latest-stable",
     "ora": "^5.1.0",
+    "uuid": "^8.3.2",
     "xlsx": "^0.17.5",
     "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create#latest-stable",
     "inflection": "^1.12.0"

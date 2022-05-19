@@ -1,7 +1,7 @@
 const expect = require("chai").expect;
 const assert = require("chai").assert;
 const { spawn_console, spawn_log, diffByLine } = require("../helper");
-const { readdir, readFile } = require("fs/promises");
+const { readdir, readFile, access } = require("fs/promises");
 const fs = require("fs");
 const { axios_post } = require("../helper");
 const testCompare = async (
@@ -98,7 +98,6 @@ describe("Zendro CLI integration tests", () => {
       ".gitignore",
       "README.md",
       "node_modules",
-      "package-lock.json",
       "package.json",
       "public",
       "src",
@@ -245,7 +244,6 @@ describe("Zendro CLI integration tests", () => {
       }
     );
     await testCompare(spa_log, template.spa_dev);
-    await testCompare(spa_log, "event - compiled successfully");
   });
   it("04. zendro stop [service…] (development mode)", async () => {
     const template = require("./templates/stop");
@@ -523,13 +521,79 @@ describe("Zendro CLI integration tests", () => {
         cwd: process.cwd() + `/test`,
       }
     );
+    // count records for validation
+    res = await axios_post(`{countCountries}`);
+    expect(res.data.data).to.eql({
+      countCountries: 6,
+    });
+  });
+  it("12. zendro bulk-download", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(
+      false,
+      "zendro",
+      ["bulk-download", "-f", "../../country_download.csv", "-n", "country"],
+      {
+        detached: true,
+        stdio: ["ignore", log_test, log_test],
+        cwd: process.cwd() + `/test/project/graphql-server`,
+      }
+    );
+    const test_log = await readFile(__dirname + "/integration_tests.log", {
+      encoding: "utf8",
+    });
+    await testCompare(
+      test_log,
+      "Executing (default): SELECT `country_id`, `name`, `population`, `size`, `river_ids`, `capital_id`, `createdAt`, `updatedAt` FROM `countries` AS `country` ORDER BY `country`.`country_id` ASC LIMIT 21;"
+    );
+    await access(process.cwd() + `/test/country_download.csv`);
+    await spawn_console("rm", ["country_download.csv"], {
+      cwd: process.cwd() + `/test`,
+    });
+  });
+  it("13. download records from remote server", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(
+      false,
+      "zendro",
+      [
+        "bulk-download",
+        "-f",
+        "../../country_remote_download.csv",
+        "-n",
+        "country",
+        "-r",
+      ],
+      {
+        detached: true,
+        stdio: ["ignore", log_test, log_test],
+        cwd: process.cwd() + `/test/project/graphql-server`,
+      }
+    );
+    const csv = await readFile(__dirname + "/country_remote_download.csv", {
+      encoding: "utf8",
+    });
+    await testCompare(csv, '"KR","SouthKorea","NULL","NULL","NULL","NULL",');
+    await spawn_console("rm", ["country_remote_download.csv"], {
+      cwd: process.cwd() + `/test`,
+    });
+    const deleteCountries = `mutation {
+      n0: deleteCountry(country_id: "DE")
+      n1: deleteCountry(country_id: "CH")
+    }`;
     res = await axios_post(deleteCountries);
     expect(res.data.data).to.eql({
       n0: "Item successfully deleted",
       n1: "Item successfully deleted",
     });
   });
-  it("12. zendro bulk-create: xlsx", async () => {
+  it("14. zendro bulk-create: xlsx", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
@@ -554,7 +618,7 @@ describe("Zendro CLI integration tests", () => {
       n1: "Item successfully deleted",
     });
   });
-  it("13. zendro bulk-create: json", async () => {
+  it("15. zendro bulk-create: json", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
