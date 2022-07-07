@@ -17,19 +17,20 @@
   },
   "homepage": "https://github.com/Zendro-dev/zendro#readme",
   "dependencies": {
-    "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#latest-stable",
     "axios": "^0.24.0",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
     "dotenv": "^16.0.0",
     "download-git-repo": "^3.0.2",
     "figlet": "^1.5.0",
+    "fs-extra": "^10.1.0",
     "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen#latest-stable",
+    "inflection": "^1.12.0",
     "ora": "^5.1.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.17.5",
     "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create#latest-stable",
-    "inflection": "^1.12.0"
+    "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#latest-stable"
   },
   "devDependencies": {
     "chai": "*",
