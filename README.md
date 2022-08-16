@@ -1,6 +1,6 @@
 # Zendro Command Line Interface (CLI)
 ## Introduction
-A CLI for building Zendro Sandox.
+A CLI for building Zendro Sandbox.
 
 ## Installation
 A quick installation would be this command: `npm install -g Zendro-dev/zendro`.
