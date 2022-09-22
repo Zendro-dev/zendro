@@ -39,7 +39,6 @@ module.exports.spawn_console = async (...args) => {
   return new Promise((resolve) => {
     let [command,arg,options] = args;
     options = {...options, shell: process.platform == 'win32'};
-    console.log({command, arg, options});
     const proc = spawn(command, arg, options);
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
@@ -58,7 +57,6 @@ module.exports.spawn_log = async (unref, ...args) => {
   return new Promise((resolve) => {
     let [command,arg,options] = args;
     options = {...options, shell: process.platform == 'win32'};
-    console.log({command, arg, options});
     const proc = spawn(command, arg, options);
     if (unref) {
       proc.unref();
