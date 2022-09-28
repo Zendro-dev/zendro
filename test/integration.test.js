@@ -1,6 +1,6 @@
 const expect = require("chai").expect;
 const assert = require("chai").assert;
-const { spawn_console, spawn_log, diffByLine } = require("../helper");
+const { spawn_console, spawn_string, spawn_log, diffByLine } = require("../helper");
 const { readdir, readFile, access } = require("fs/promises");
 const fs = require("fs");
 const { axios_post } = require("../helper");
@@ -36,6 +36,8 @@ describe("Zendro CLI integration tests", () => {
     });
     const first_level = await readdir(process.cwd() + "/test/project");
     const first_level_content = [
+      ".env",
+      ".env.example",
       "2021-12-08T17_37_17.804Z#keycloak.js",
       "LICENSE",
       "README.md",
@@ -94,9 +96,11 @@ describe("Zendro CLI integration tests", () => {
     );
     const graphiql_auth_content = [
       ".env.development",
+      ".env.example",
       ".env.production",
       ".gitignore",
       "README.md",
+      "next.config.js",
       "node_modules",
       "package.json",
       "public",
@@ -109,6 +113,7 @@ describe("Zendro CLI integration tests", () => {
     );
     const graphql_server_content = [
       ".env",
+      ".env.example",
       ".gitignore",
       "Dockerfile.graphql_server",
       "LICENSE",
@@ -116,6 +121,8 @@ describe("Zendro CLI integration tests", () => {
       "acl_rules.js",
       "config",
       "connection.js",
+      "data.db",
+      "migrateDbAndStartServer.js",
       "migrateDbAndStartServer.sh",
       "migrations",
       "models",
@@ -133,6 +140,7 @@ describe("Zendro CLI integration tests", () => {
     );
     const single_page_app_content = [
       ".env.development",
+      ".env.example",
       ".env.production",
       ".env.test",
       ".eslintignore",
@@ -142,7 +150,6 @@ describe("Zendro CLI integration tests", () => {
       ".prettierrc.js",
       "README.md",
       "acl2.d.ts",
-      "babel.config.js",
       "cypress",
       "cypress.json",
       "lint-staged.config.js",
@@ -245,7 +252,7 @@ describe("Zendro CLI integration tests", () => {
     );
     await testCompare(spa_log, template.spa_dev);
   });
-  it("04. zendro stop [service…] (development mode)", async () => {
+  it.only("04. zendro stop [service…] (development mode)", async () => {
     const template = require("./templates/stop");
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
@@ -257,13 +264,10 @@ describe("Zendro CLI integration tests", () => {
       cwd: process.cwd() + `/test/project`,
     });
     await new Promise((resolve) => setTimeout(resolve, 3000));
-    const gqs_log = await readFile(
-      __dirname + "/project/logs/graphql-server.log",
-      {
-        encoding: "utf8",
-      }
-    );
-    await testCompare(gqs_log, template.gqs_dev);
+
+    const gqlListen = await spawn_string("lsof", ["-i"], "grep", ["LISTEN"], "grep", ["3000"]);
+    expect(gqlListen).to.equal('');
+
     const giql_log = await readFile(__dirname + "/project/logs/graphiql.log", {
       encoding: "utf8",
     });
@@ -333,13 +337,10 @@ describe("Zendro CLI integration tests", () => {
       cwd: process.cwd() + `/test/project`,
     });
     await new Promise((resolve) => setTimeout(resolve, 3000));
-    const gqs_log = await readFile(
-      __dirname + "/project/logs/graphql-server.log",
-      {
-        encoding: "utf8",
-      }
-    );
-    await testCompare(gqs_log, template.gqs_prod);
+
+    const gqlListen = await spawn_string("lsof", ["-i"], "grep", ["LISTEN"], "grep", ["3000"]);
+    expect(gqlListen).to.equal('');
+    
     const spa_log = await readFile(
       __dirname + "/project/logs/single-page-app.log",
       {
