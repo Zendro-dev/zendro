@@ -4,7 +4,7 @@
   "description": "Zendro Command Line Interface (CLI)",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --timeout 160000 ./test/integration.test.js"
+    "test": "mocha --timeout 360000 ./test/integration.test.js"
   },
   "repository": {
     "type": "git",
