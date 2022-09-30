@@ -252,7 +252,7 @@ describe("Zendro CLI integration tests", () => {
     );
     await testCompare(spa_log, template.spa_dev);
   });
-  it.only("04. zendro stop [service…] (development mode)", async () => {
+  it("04. zendro stop [service…] (development mode)", async () => {
     const template = require("./templates/stop");
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
