@@ -4,26 +4,36 @@
   "description": "Zendro Command Line Interface (CLI)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --timeout 160000 ./test/integration.test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wunderbarr/zendro.git"
+    "url": "git+https://github.com/Zendro-dev/zendro.git"
   },
   "author": "Dan Wang",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wunderbarr/zendro/issues"
+    "url": "https://github.com/Zendro-dev/zendro/issues"
   },
-  "homepage": "https://github.com/wunderbarr/zendro#readme",
+  "homepage": "https://github.com/Zendro-dev/zendro#readme",
   "dependencies": {
+    "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#latest-stable",
+    "axios": "^0.24.0",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
+    "dotenv": "^16.0.0",
     "download-git-repo": "^3.0.2",
     "figlet": "^1.5.0",
     "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen#latest-stable",
     "ora": "^5.1.0",
-    "single-page-app-codegen": "github:Zendro-dev/single-page-app-codegen#latest-stable"
+    "uuid": "^8.3.2",
+    "xlsx": "^0.17.5",
+    "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create#latest-stable",
+    "inflection": "^1.12.0"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
   },
   "bin": {
     "zendro": "./bin/index.js"

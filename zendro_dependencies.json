@@ -1,0 +1,5 @@
+{
+    "single-page-app": "latest-stable",
+    "graphql-server": "latest-stable",
+    "graphiql-auth": "latest-stable"
+}
