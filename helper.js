@@ -37,7 +37,9 @@ module.exports.clone = async (repo, desc) => {
  */
 module.exports.spawn_console = async (...args) => {
   return new Promise((resolve) => {
-    const proc = spawn(...args);
+    let [command,arg,options] = args;
+    options = {...options, shell: process.platform == 'win32'};
+    const proc = spawn(command, arg, options);
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
     proc.on("close", () => {
@@ -53,7 +55,9 @@ module.exports.spawn_console = async (...args) => {
  */
 module.exports.spawn_log = async (unref, ...args) => {
   return new Promise((resolve) => {
-    const proc = spawn(...args);
+    let [command,arg,options] = args;
+    options = {...options, shell: process.platform == 'win32'};
+    const proc = spawn(command, arg, options);
     if (unref) {
       proc.unref();
     }
