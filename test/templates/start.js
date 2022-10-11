@@ -15,6 +15,7 @@ module.exports.gqs_dev_initialization = `
 loaded model: city.js
 loaded model: country.js
 loaded model: river.js
+strict mode: missing type "object" for keyword "properties" at "#" (strictTypes)
 Server started without Authorization-Check. Start with command line argument 'acl', if Rule Based Authorization is wanted.
 Merging Schema
 initialize storage handlers for models

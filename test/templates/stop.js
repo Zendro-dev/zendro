@@ -1,7 +1,3 @@
-module.exports.gqs_dev = `Killed                  npm run dev`;
-
-module.exports.gqs_prod = `Killed                  npm start`;
-
 module.exports.giql_dev = `
 Killed
 error Command failed with exit code 137.
