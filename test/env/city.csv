@@ -1,4 +1,4 @@
-city_id,name,population,country_id
+city_id,name,population,addCountry
 1,Aachen,100000,DE
 2,Bonn,1000000,DE
 3,Berlin,1000000,DE

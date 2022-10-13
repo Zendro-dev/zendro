@@ -153,36 +153,39 @@ module.exports.axios_post = async (query) => {
     const password = process.env.PASSWORD;
     const url = process.env.REMOTE_URL;
     const id = process.env.CLIENT_ID;
-    const res = await axios({
-      method: "post",
-      url: OAUTH2_TOKEN_URI,
-      data: `username=${username}&password=${password}&grant_type=password&client_id=${id}`,
-      headers: {
-        "content-type": "application/x-www-form-urlencoded;charset=utf-8",
-      },
-    });
+    let res;
+    if (OAUTH2_TOKEN_URI && username && password && url && id) {
+      res = await axios({
+        method: "post",
+        url: OAUTH2_TOKEN_URI,
+        data: `username=${username}&password=${password}&grant_type=password&client_id=${id}`,
+        headers: {
+          "content-type": "application/x-www-form-urlencoded;charset=utf-8",
+        },
+      });
+    }
+
+    let headers = {
+      "Content-Type": "application/json",
+      Accept: "application/graphql",
+    };
     if (res && res.data) {
       const token = res.data.access_token;
-      try {
-        const response = await axios.post(
-          url,
-          { query: query },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/graphql",
-              authorization: "Bearer " + token,
-            },
-          }
-        );
-        return response;
-      } catch (error) {
-        throw new Error(error);
-      }
-    } else {
-      throw new Error("No api token found");
+      headers["authorization"] = "Bearer " + token;
     }
+    const response = await axios.post(
+      url,
+      { query: query },
+      {
+        headers: headers,
+      }
+    );
+    return response;
   } catch (error) {
-    throw new Error(error);
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw new Error(error);
+    }
   }
 };
