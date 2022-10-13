@@ -1,6 +1,11 @@
 const expect = require("chai").expect;
 const assert = require("chai").assert;
-const { spawn_console, spawn_string, spawn_log, diffByLine } = require("../helper");
+const {
+  spawn_console,
+  spawn_string,
+  spawn_log,
+  diffByLine,
+} = require("../helper");
 const { readdir, readFile, access } = require("fs/promises");
 const fs = require("fs");
 const { axios_post } = require("../helper");
@@ -123,7 +128,6 @@ describe("Zendro CLI integration tests", () => {
       "connection.js",
       "data.db",
       "migrateDbAndStartServer.js",
-      "migrateDbAndStartServer.sh",
       "migrations",
       "models",
       "node_modules",
@@ -194,6 +198,13 @@ describe("Zendro CLI integration tests", () => {
     );
     const content = ["city.js", "country.js", "river.js"];
     expect(models).to.eql(content);
+    await spawn_console(
+      "cp",
+      ["./env/river.js", "./project/graphql-server/validations/river.js"],
+      {
+        cwd: process.cwd() + `/test`,
+      }
+    );
   });
   it("03. zendro start [service...] (development mode)", async () => {
     const template = require("./templates/start");
@@ -265,8 +276,15 @@ describe("Zendro CLI integration tests", () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const gqlListen = await spawn_string("lsof", ["-i"], "grep", ["LISTEN"], "grep", ["3000"]);
-    expect(gqlListen).to.equal('');
+    const gqlListen = await spawn_string(
+      "lsof",
+      ["-i"],
+      "grep",
+      ["LISTEN"],
+      "grep",
+      ["3000"]
+    );
+    expect(gqlListen).to.equal("");
 
     const giql_log = await readFile(__dirname + "/project/logs/graphiql.log", {
       encoding: "utf8",
@@ -338,9 +356,16 @@ describe("Zendro CLI integration tests", () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const gqlListen = await spawn_string("lsof", ["-i"], "grep", ["LISTEN"], "grep", ["3000"]);
-    expect(gqlListen).to.equal('');
-    
+    const gqlListen = await spawn_string(
+      "lsof",
+      ["-i"],
+      "grep",
+      ["LISTEN"],
+      "grep",
+      ["3000"]
+    );
+    expect(gqlListen).to.equal("");
+
     const spa_log = await readFile(
       __dirname + "/project/logs/single-page-app.log",
       {
@@ -437,7 +462,42 @@ describe("Zendro CLI integration tests", () => {
       "Executing (default): CREATE INDEX `rivers_name` ON `rivers` (`name`)"
     );
   });
-  it("10. zendro bulk-create: csv", async () => {
+
+  it("10. zendro bulk-create: validation failed (association)", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(
+      false,
+      "zendro",
+      ["bulk-create", "-f", "../../env/river_validation.csv", "-n", "river"],
+      {
+        detached: true,
+        stdio: ["ignore", log_test, log_test],
+        cwd: process.cwd() + `/test/project/graphql-server`,
+      }
+    );
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    const test_log = await readFile(__dirname + "/integration_tests.log", {
+      encoding: "utf8",
+    });
+    const test_log_arr = test_log.split("\n");
+    const file_path = test_log_arr[test_log_arr.length - 2].split(":")[1];
+    const file_path_arr = file_path.split("/");
+    const error_log = await readFile(file_path, {
+      encoding: "utf8",
+    });
+    await testCompare(
+      error_log,
+      `record1	1	undefined	{"message":"Error: A given ID has no existing record in data model country","input":{"river_id":"1","name":"Acaponeta","length":50000,"addCountries":["MX"]}}`
+    );
+    await spawn_console("rm", [file_path_arr[file_path_arr.length - 1]], {
+      cwd: file_path_arr.slice(0, file_path_arr.length - 1).join("/"),
+    });
+  });
+
+  it("11. zendro bulk-create: csv", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
@@ -474,7 +534,81 @@ describe("Zendro CLI integration tests", () => {
       "Executing (default): UPDATE `cities` SET `country_id`=$1,`updatedAt`=$2 WHERE `city_id` = $3"
     );
   });
-  it("11. upload csv to remote server", async () => {
+
+  it("12. zendro bulk-download", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(
+      false,
+      "zendro",
+      ["bulk-download", "-f", "../../country_download.csv", "-n", "country"],
+      {
+        detached: true,
+        stdio: ["ignore", log_test, log_test],
+        cwd: process.cwd() + `/test/project/graphql-server`,
+      }
+    );
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    const test_log = await readFile(__dirname + "/integration_tests.log", {
+      encoding: "utf8",
+    });
+    await testCompare(
+      test_log,
+      "Executing (default): SELECT `country_id`, `name`, `population`, `size`, `river_ids`, `capital_id`, `createdAt`, `updatedAt` FROM `countries` AS `country` ORDER BY `country`.`country_id` ASC LIMIT 10001;"
+    );
+    await access(process.cwd() + `/test/country_download.csv`);
+    await spawn_console("rm", ["country_download.csv"], {
+      cwd: process.cwd() + `/test`,
+    });
+  });
+
+  it("13. zendro bulk-create: validation failed (field)", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(
+      false,
+      "zendro",
+      ["bulk-create", "-f", "../../env/river_validation.csv", "-n", "river"],
+      {
+        detached: true,
+        stdio: ["ignore", log_test, log_test],
+        cwd: process.cwd() + `/test/project/graphql-server`,
+      }
+    );
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    const test_log = await readFile(__dirname + "/integration_tests.log", {
+      encoding: "utf8",
+    });
+    const test_log_arr = test_log.split("\n");
+    const file_path = test_log_arr[test_log_arr.length - 2].split(":")[1];
+    const file_path_arr = file_path.split("/");
+    const error_log = await readFile(file_path, {
+      encoding: "utf8",
+    });
+    await testCompare(
+      error_log,
+      `record1	1	length	{"message":"Error: validation failed","errors":[{"instancePath":"/length","schemaPath":"#/properties/length/maximum","keyword":"maximum","params":{"comparison":"<=","limit":500},"message":"must be <= 500"}],"validation":true,"ajv":true,"input":{"river_id":"1","name":"Acaponeta","length":50000,"addCountries":["MX"]}}`
+    );
+    await spawn_console("rm", [file_path_arr[file_path_arr.length - 1]], {
+      cwd: file_path_arr.slice(0, file_path_arr.length - 1).join("/"),
+    });
+  });
+
+  it("14. upload csv to remote server", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(false, "zendro", ["start", "gqs"], {
+      detached: true,
+      stdio: ["ignore", log_test, log_test],
+      cwd: process.cwd() + `/test/project`,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     const deleteAssociations = `mutation {
         n0: updateCountry(country_id: "DE", removeCities: ["1", "2", "3"]){countFilteredCities}
         n1: updateCountry(country_id: "CH", removeCities: ["4", "5"]){countFilteredCities}
@@ -487,11 +621,21 @@ describe("Zendro CLI integration tests", () => {
     const deleteCountries = `mutation {
         n0: deleteCountry(country_id: "DE")
         n1: deleteCountry(country_id: "CH")
+        n2: deleteCountry(country_id: "CHN")
+        n3: deleteCountry(country_id: "JP")
+        n4: deleteCountry(country_id: "KR")
+        n5: deleteCountry(country_id: "FR")
+        n6: deleteCountry(country_id: "MX")
       }`;
     res = await axios_post(deleteCountries);
     expect(res.data.data).to.eql({
       n0: "Item successfully deleted",
       n1: "Item successfully deleted",
+      n2: "Item successfully deleted",
+      n3: "Item successfully deleted",
+      n4: "Item successfully deleted",
+      n5: "Item successfully deleted",
+      n6: "Item successfully deleted",
     });
     const deleteCities = `mutation {
         n0: deleteCity(city_id: "1")
@@ -508,10 +652,6 @@ describe("Zendro CLI integration tests", () => {
       n3: "Item successfully deleted",
       n4: "Item successfully deleted",
     });
-    let log_test = fs.openSync(
-      process.cwd() + `/test/integration_tests.log`,
-      "a"
-    );
     await spawn_log(
       false,
       "zendro",
@@ -525,10 +665,11 @@ describe("Zendro CLI integration tests", () => {
     // count records for validation
     res = await axios_post(`{countCountries}`);
     expect(res.data.data).to.eql({
-      countCountries: 6,
+      countCountries: 7,
     });
   });
-  it("12. zendro bulk-download", async () => {
+
+  it("15. upload csv to remote server: validation failed (field)", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
@@ -536,26 +677,40 @@ describe("Zendro CLI integration tests", () => {
     await spawn_log(
       false,
       "zendro",
-      ["bulk-download", "-f", "../../country_download.csv", "-n", "country"],
+      [
+        "bulk-create",
+        "-f",
+        "../../env/river_validation.csv",
+        "-n",
+        "river",
+        "-r",
+      ],
       {
         detached: true,
         stdio: ["ignore", log_test, log_test],
         cwd: process.cwd() + `/test/project/graphql-server`,
       }
     );
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     const test_log = await readFile(__dirname + "/integration_tests.log", {
       encoding: "utf8",
     });
+    const test_log_arr = test_log.split("\n");
+    const file_path = test_log_arr[test_log_arr.length - 2].split(":")[1];
+    const file_path_arr = file_path.split("/");
+    const error_log = await readFile(file_path, {
+      encoding: "utf8",
+    });
     await testCompare(
-      test_log,
-      "Executing (default): SELECT `country_id`, `name`, `population`, `size`, `river_ids`, `capital_id`, `createdAt`, `updatedAt` FROM `countries` AS `country` ORDER BY `country`.`country_id` ASC LIMIT 21;"
+      error_log,
+      `record1	1	length	{"validationErrors":[{"instancePath":"/length","schemaPath":"#/properties/length/maximum","keyword":"maximum","params":{"comparison":"<=","limit":500},"message":"must be <= 500"}],"input":{"river_id":"1","name":"Acaponeta","length":50000,"addCountries":["MX"]}}`
     );
-    await access(process.cwd() + `/test/country_download.csv`);
-    await spawn_console("rm", ["country_download.csv"], {
-      cwd: process.cwd() + `/test`,
+    await spawn_console("rm", [file_path_arr[file_path_arr.length - 1]], {
+      cwd: file_path_arr.slice(0, file_path_arr.length - 1).join("/"),
     });
   });
-  it("13. download records from remote server", async () => {
+
+  it("16. download records from remote server", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
@@ -580,21 +735,78 @@ describe("Zendro CLI integration tests", () => {
     const csv = await readFile(__dirname + "/country_remote_download.csv", {
       encoding: "utf8",
     });
-    await testCompare(csv, '"KR","SouthKorea","NULL","NULL","NULL","NULL",');
+    await testCompare(csv, '"KR","SouthKorea","NULL","NULL","NULL","NULL"');
     await spawn_console("rm", ["country_remote_download.csv"], {
       cwd: process.cwd() + `/test`,
     });
     const deleteCountries = `mutation {
       n0: deleteCountry(country_id: "DE")
       n1: deleteCountry(country_id: "CH")
+      n2: deleteCountry(country_id: "CHN")
+      n3: deleteCountry(country_id: "JP")
+      n4: deleteCountry(country_id: "KR")
+      n5: deleteCountry(country_id: "FR")
+      n6: deleteCountry(country_id: "MX")
     }`;
     res = await axios_post(deleteCountries);
     expect(res.data.data).to.eql({
       n0: "Item successfully deleted",
       n1: "Item successfully deleted",
+      n2: "Item successfully deleted",
+      n3: "Item successfully deleted",
+      n4: "Item successfully deleted",
+      n5: "Item successfully deleted",
+      n6: "Item successfully deleted",
     });
   });
-  it("14. zendro bulk-create: xlsx", async () => {
+
+  it("17. upload csv to remote server: validation failed (association)", async () => {
+    let log_test = fs.openSync(
+      process.cwd() + `/test/integration_tests.log`,
+      "a"
+    );
+    await spawn_log(
+      false,
+      "zendro",
+      [
+        "bulk-create",
+        "-f",
+        "../../env/river_validation.csv",
+        "-n",
+        "river",
+        "-r",
+      ],
+      {
+        detached: true,
+        stdio: ["ignore", log_test, log_test],
+        cwd: process.cwd() + `/test/project/graphql-server`,
+      }
+    );
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    const test_log = await readFile(__dirname + "/integration_tests.log", {
+      encoding: "utf8",
+    });
+    const test_log_arr = test_log.split("\n");
+    const file_path = test_log_arr[test_log_arr.length - 2].split(":")[1];
+    const file_path_arr = file_path.split("/");
+    const error_log = await readFile(file_path, {
+      encoding: "utf8",
+    });
+    await testCompare(
+      error_log,
+      `record1	1	undefined	{"message":"A given ID has no existing record in data model country","input":{"river_id":"1","name":"Acaponeta","length":50000,"addCountries":["MX"]}}`
+    );
+    await spawn_console("rm", [file_path_arr[file_path_arr.length - 1]], {
+      cwd: file_path_arr.slice(0, file_path_arr.length - 1).join("/"),
+    });
+    await spawn_log(false, "zendro", ["stop", "gqs"], {
+      detached: true,
+      stdio: ["ignore", log_test, log_test],
+      cwd: process.cwd() + `/test/project`,
+    });
+  });
+
+  it("18. zendro bulk-create: xlsx", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
@@ -619,7 +831,8 @@ describe("Zendro CLI integration tests", () => {
       n1: "Item successfully deleted",
     });
   });
-  it("15. zendro bulk-create: json", async () => {
+
+  it("19. zendro bulk-create: json", async () => {
     let log_test = fs.openSync(
       process.cwd() + `/test/integration_tests.log`,
       "a"
@@ -642,11 +855,6 @@ describe("Zendro CLI integration tests", () => {
     expect(res.data.data).to.eql({
       n0: "Item successfully deleted",
       n1: "Item successfully deleted",
-    });
-    await spawn_log(false, "zendro", ["stop", "gqs"], {
-      detached: true,
-      stdio: ["ignore", log_test, log_test],
-      cwd: process.cwd() + `/test/project`,
     });
   });
 });
