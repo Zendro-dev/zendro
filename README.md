@@ -19,10 +19,11 @@ Start a new application:
 1. copy starter pack to folder <your_application_name>
 2. clone `single-page-app` & `graphql-server` & `graphiql-auth` repositories from GitHub (version: see `zendro_dependencies.json`)
 3. install packages for each repository
-4. copy seeders to graphql-server and create templates of environment variables for each repository
+4. create templates of environment variables for each repository
 5. **-d** or **--dockerize**: keep Dockerfiles (default: false). Set to be true, keep Dockerfiles. Default: remove Dockerfiles and initUserDb.sh
 6. a welcome interface
-7. hints: edit config files if necessary
+7. hints: edit config files if necessary. And there are two example files for the configuration of all supported storage types with docker setup, namely `./config/data_models_storage_config_example.json` and `./docker-compose-dev-example.yml`
+
 * without docker setup: ./graphql-server/config/data_models_storage_config.json
 * with docker setup: ./config/data_models_storage_config.json
 * ./graphql-server/.env
@@ -106,7 +107,8 @@ If you would like to upload a file to a remote server, please consider the templ
 * SPA in production mode: ./single-page-app/.env.production
 * GraphiQL in development mode: ./graphql-server/.env.development 
 * GraphiQL in production mode: ./graphql-server/.env.production
-If you would like to upload a file to a remote server, please consider the template `.env.migration.sample`, create a new file `.env.migration` and modify relevant environment variables.
+
+Note: if you would like to upload a file to a remote server, please consider the template `.env.migration.sample`, create a new file `.env.migration` and modify relevant environment variables. By default, SQLite3 would be used for the data storage. If you want to use other storage types, then you can reuse part of two example files, which illustrate the configuration of all supported storage types with docker setup, namely `./config/data_models_storage_config_example.json` and `./docker-compose-dev-example.yml`. 
 
 2. __cd test__
 
