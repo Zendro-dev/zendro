@@ -1,0 +1,15 @@
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
+
+const CustomD3Plot: React.FC<{ data: any }> = (props) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    const svgElement = d3.select(ref.current);
+    // draw a plot with d3 library
+    // data could be accessed via props.data
+  }, []);
+
+  return <svg ref={ref} />;
+};
+
+export default CustomD3Plot;

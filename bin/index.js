@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { program } = require("commander");
+const { program, Option } = require("commander");
 const collect = (value, previous) => {
   return previous.concat([value]);
 };
@@ -91,4 +91,29 @@ program
   .description("set up a sandbox with default data models and SQLite")
   .option("-d, --dockerize", "include docker config files", false)
   .action(require("../lib/setup"));
+
+program
+  .command("create-plot")
+  .description("create a plot")
+  .option("-f, --plot_name <plot_name>", "customized plot name")
+  .addOption(
+    new Option(
+      "-t, --type <type>",
+      "type of the visualization library"
+    ).choices(["plotly", "d3"])
+  )
+  .addOption(
+    new Option("-m, --menu <menu>", "the location of the plot menu").choices([
+      "none",
+      "top",
+      "left",
+    ])
+  )
+  .option(
+    "-n, --menu_item_name <menu_item_name>",
+    "current item name in the plot menu"
+  )
+  .option("-p, --default_plots", "create default plots", false)
+  .action(require("../lib/create_plot"));
+
 program.parse(process.argv);

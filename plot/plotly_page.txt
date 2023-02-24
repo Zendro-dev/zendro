@@ -1,0 +1,61 @@
+import React from "react";
+import dynamic from "next/dynamic";
+import { ModelLayout, PageWithLayout } from "@/layouts";
+
+import { createStyles, makeStyles } from "@mui/styles";
+import { useZendroClient } from "@/hooks";
+
+import { useState, useEffect } from "react";
+
+import { useSession } from "next-auth/react";
+
+const PlotlyPlot = dynamic(() => import("@/zendro/plots/customPlotlyPlot"), {
+  ssr: false,
+});
+
+const Plots: PageWithLayout = () => {
+  useSession();
+  const zendro = useZendroClient();
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    // fetch data with graphql query, parse data and set data
+    const fetchData = async (): Promise<void> => {
+      // add graphql query
+      let res = await zendro.request(``);
+      // parse data and set data
+      setData(res);
+    };
+    fetchData();
+  }, []);
+
+  // add custom classes
+  const classes = useStyles();
+
+  return (
+    // Generic plot container. Feel free to change
+    <div className={classes.plotContainer}>
+      <PlotlyPlot
+        // pass any plot parameters, including data
+        data={data}
+      />
+    </div>
+  );
+};
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    plotContainer: {
+      display: "flex",
+      flexDirection: "column",
+      overflow: "auto",
+      padding: "2rem",
+    },
+  })
+);
+
+// Export the plots using the default zendro Modellayout. This ensures that your
+// new page will be integrated seamlessly into the existing zendro experience.
+// If you want to fully customize the page, just delete the following line.
+Plots.layout = ModelLayout;
+
+export default Plots;

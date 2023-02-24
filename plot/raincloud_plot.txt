@@ -1,0 +1,187 @@
+import React from 'react';
+import { ModelLayout, PageWithLayout } from '@/layouts';
+import { createStyles, makeStyles } from '@mui/styles';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import SelectLabels from '@/zendro/plots/data-model-field-selector';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import IntField from '@/zendro/record-fields/int-field';
+import dynamic from 'next/dynamic';
+const PlotlyPlot = dynamic(() => import('@/zendro/plots/defaultPlotlyPlot'), {
+  ssr: false,
+});
+
+const Plots: PageWithLayout = () => {
+  useSession();
+  const [display, setDisplay] = useState(false);
+  const [direction, setDirection] = useState(false);
+  const [group, setGroup] = useState<number | null>(0);
+
+  const [data, setData] = useState<any>({});
+  const [attributes, setAttributes] = useState<any>({});
+  const [angle, setAngle] = useState<number>(0);
+  const [spanMode, setSpanMode] = useState('soft');
+
+  const handleChangeForDisplay = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setDisplay(event.target.checked);
+  };
+  const handleChangeForDirection = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setDirection(event.target.checked);
+  };
+  const handleChangeForSpanMode = (event: SelectChangeEvent): void => {
+    setSpanMode(event.target.value);
+  };
+  const handleChangeForAttributes =
+    (index: string) => (event: SelectChangeEvent) => {
+      setAttributes({ ...attributes, [index]: event.target.value });
+    };
+  const changeData = (index: string) => (records: number[]) => {
+    setData({ ...data, [index]: records });
+  };
+  // add custom classes
+  const classes = useStyles();
+
+  return (
+    // Generic plot container. Feel free to change
+    <div className={classes.plotContainer}>
+      <Stack direction="row" spacing={2}>
+        <Stack direction="column" spacing={2}>
+          <Typography variant="h6" gutterBottom>
+            The number of numerical attributes:
+          </Typography>
+          <IntField
+            value={group}
+            onChange={(value) => {
+              if (value == null || value >= 0) {
+                setGroup(value);
+                setData(
+                  Object.fromEntries(
+                    [...Array(value).keys()].map((x) => ['group' + x, []])
+                  )
+                );
+                setAttributes(
+                  Object.fromEntries(
+                    [...Array(value).keys()].map((x) => ['group' + x, ''])
+                  )
+                );
+              }
+            }}
+            onError={(err) => {
+              if (err) {
+                console.log('error:', err);
+              }
+            }}
+          />
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="h6">Direction:</Typography>
+            <Typography>Horizontal</Typography>
+            <Switch
+              checked={direction}
+              onChange={handleChangeForDirection}
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
+            <Typography>Vertical</Typography>
+          </Stack>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="h6">Tickangle:</Typography>
+            <IntField
+              value={angle}
+              onChange={(value) => {
+                if (value) {
+                  setAngle(value);
+                }
+              }}
+              onError={(err) => {
+                if (err) {
+                  console.log('error:', err);
+                }
+              }}
+            />
+          </Stack>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="h6">Display:</Typography>
+            <Switch
+              checked={display}
+              onChange={handleChangeForDisplay}
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
+            <Typography variant="h6">Span mode:</Typography>
+            <Select
+              labelId="span-helper-label"
+              id="span-helper"
+              value={spanMode}
+              label="Attribute"
+              onChange={handleChangeForSpanMode}
+            >
+              <MenuItem value={'soft'}>soft</MenuItem>
+              <MenuItem value={'hard'}>hard</MenuItem>
+            </Select>
+          </Stack>
+          {group != null &&
+            group > 0 &&
+            [...Array(group).keys()].map((x) => (
+              <SelectLabels
+                key={'select-group-' + x}
+                setData={changeData('group' + x)}
+                attribute={attributes['group' + x]}
+                handleChangeForAttributes={handleChangeForAttributes(
+                  'group' + x
+                )}
+                helperText={`attribute ${x + 1}`}
+              />
+            ))}
+        </Stack>
+
+        {group != null && group > 0 && display && (
+          <PlotlyPlot
+            // pass any plot parameters, including data
+            data={[...Array(group).keys()].map((num) => ({
+              ...(direction && { y: data['group' + num] }),
+              ...(!direction && { x: data['group' + num] }),
+              points: 'all',
+              pointpos: -0.5,
+              box: {
+                visible: true,
+              },
+              //   jitter: 0.5,
+              spanmode: spanMode,
+              side: 'positive',
+              name: attributes['group' + num],
+              fillcolor: 'cls',
+              type: 'violin',
+            }))}
+            title={'colored raincloud plot'}
+            yTickAngle={!direction ? angle : undefined}
+            xTickAngle={direction ? angle : undefined}
+          />
+        )}
+      </Stack>
+    </div>
+  );
+};
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    plotContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'auto',
+      padding: '2rem',
+    },
+  })
+);
+
+// Export the plots using the default zendro Modellayout. This ensures that your
+// new page will be integrated seamlessly into the existing zendro experience.
+// If you want to fully customize the page, just delete the following line.
+Plots.layout = ModelLayout;
+
+export default Plots;

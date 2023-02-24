@@ -1,0 +1,47 @@
+import React from "react";
+import dynamic from "next/dynamic";
+import { ModelLayout, PageWithLayout } from "@/layouts";
+
+import { useZendroClient } from "@/hooks";
+
+import { useState, useEffect } from "react";
+
+import { useSession } from "next-auth/react";
+
+const D3Plot = dynamic(() => import('@/zendro/plots/customD3Plot'), {
+  ssr: false,
+});
+
+const Plots: PageWithLayout = () => {
+  useSession();
+  const zendro = useZendroClient();
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    // fetch data with graphql query, parse data and set data
+    const fetchData = async (): Promise<void> => {
+      // add graphql query
+      let res:any = await zendro.request(``);
+      // parse data and set data
+      setData(res);
+    };
+    fetchData();
+  }, []);
+
+  return (
+    data && (
+      <svg className="main-svg" width="100%" height="100%">
+        <D3Plot
+          // pass any plot parameters, including data
+          data={data}
+        />
+      </svg>
+    )
+  );
+};
+
+// Export the plots using the default zendro Modellayout. This ensures that your
+// new page will be integrated seamlessly into the existing zendro experience.
+// If you want to fully customize the page, just delete the following line.
+Plots.layout = ModelLayout;
+
+export default Plots;

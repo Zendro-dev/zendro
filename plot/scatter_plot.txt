@@ -1,0 +1,128 @@
+import React from 'react';
+import { ModelLayout, PageWithLayout } from '@/layouts';
+import { createStyles, makeStyles } from '@mui/styles';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import SelectLabels from '@/zendro/plots/data-model-field-selector';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import dynamic from 'next/dynamic';
+const PlotlyPlot = dynamic(() => import('@/zendro/plots/defaultPlotlyPlot'), {
+  ssr: false,
+});
+
+const Plots: PageWithLayout = () => {
+  useSession();
+  const [display, setDisplay] = useState(false);
+  const [mode, setMode] = useState('');
+  const [data, setData] = useState({ x: [], y: [] });
+  const [attributes, setAttributes] = useState({ x: '', y: '' });
+
+  const handleChangeForMode = (event: SelectChangeEvent): void => {
+    setMode(event.target.value);
+  };
+  const handleChangeForDisplay = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setDisplay(event.target.checked);
+  };
+  const handleChangeForAttributes =
+    (index: string) => (event: SelectChangeEvent) => {
+      setAttributes({ ...attributes, [index]: event.target.value });
+    };
+  const changeData = (index: string) => (records: number[]) => {
+    setData({ ...data, [index]: records });
+  };
+
+  // add custom classes
+  const classes = useStyles();
+
+  return (
+    // Generic plot container. Feel free to change
+    <div className={classes.plotContainer}>
+      <Stack direction="row" spacing={2}>
+        <Typography variant="h6" gutterBottom>
+          Y-Axis:
+        </Typography>
+        <SelectLabels
+          setData={changeData('y')}
+          attribute={attributes['y']}
+          handleChangeForAttributes={handleChangeForAttributes('y')}
+          helperText="only numerical attributes"
+        />
+        <Typography variant="h6" gutterBottom>
+          X-Axis:
+        </Typography>
+        <SelectLabels
+          setData={changeData('x')}
+          attribute={attributes['x']}
+          handleChangeForAttributes={handleChangeForAttributes('x')}
+          helperText="optional"
+        />
+        <Typography variant="h6" gutterBottom>
+          Style Mode:
+        </Typography>
+        <FormControl sx={{ m: 1, minWidth: 120, pt: 1 }}>
+          <InputLabel id="style-label">Mode</InputLabel>
+          <Select
+            labelId="style-label"
+            id="style-select"
+            value={mode}
+            label="Mode"
+            onChange={handleChangeForMode}
+          >
+            <MenuItem value={'lines'}>lines</MenuItem>
+            <MenuItem value={'markers'}>markers</MenuItem>
+            <MenuItem value={'lines+markers'}>lines+markers</MenuItem>
+          </Select>
+        </FormControl>
+        <Typography variant="h6">Display:</Typography>
+        <Switch
+          checked={display}
+          onChange={handleChangeForDisplay}
+          inputProps={{ 'aria-label': 'controlled' }}
+        />
+      </Stack>
+
+      {display && (
+        <PlotlyPlot
+          // pass any plot parameters, including data
+          data={[
+            {
+              x: data['x'].length == 0 ? data['y'] : data['x'],
+              y: data['y'],
+              mode: mode,
+              type: 'scatter',
+            },
+          ]}
+          title={'scatter plot'}
+          xTitle={attributes['x']}
+          yTitle={attributes['y']}
+        />
+      )}
+    </div>
+  );
+};
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    plotContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'auto',
+      padding: '2rem',
+    },
+  })
+);
+
+// Export the plots using the default zendro Modellayout. This ensures that your
+// new page will be integrated seamlessly into the existing zendro experience.
+// If you want to fully customize the page, just delete the following line.
+Plots.layout = ModelLayout;
+
+export default Plots;

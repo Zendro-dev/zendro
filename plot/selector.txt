@@ -1,0 +1,132 @@
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { MAX_RECORD_LIMIT } from '@/config/globals';
+import inflection from 'inflection';
+import dataModels from '@/build/models.preval';
+import { ReactElement, useState, useEffect } from 'react';
+import { useToastNotification, useZendroClient } from '@/hooks';
+import { useTranslation } from 'react-i18next';
+import FormHelperText from '@mui/material/FormHelperText';
+type SelectorProps = {
+  attribute: string;
+  handleChangeForAttributes: (event: SelectChangeEvent) => void;
+  setData: (records: number[]) => void;
+  helperText?: string;
+};
+
+export default function SelectLabels({
+  attribute,
+  handleChangeForAttributes,
+  setData,
+  helperText,
+}: SelectorProps): ReactElement {
+  const zendro = useZendroClient();
+  const { showSnackbar } = useToastNotification();
+  const { t } = useTranslation();
+  const [model, setModel] = useState('');
+
+  const modelCandidates = Object.keys(dataModels);
+  const attributeCandidates =
+    model != ''
+      ? dataModels[model].attributes
+          .filter((x) => ['Float', 'Int'].includes(x.type))
+          .map((x) => x.name)
+      : ['None'];
+
+  const handleChangeForModel = (event: SelectChangeEvent): void => {
+    setModel(event.target.value);
+  };
+
+  useEffect(() => {
+    if (model != '' && attribute != '') {
+      // fetch data with graphql query and parse data
+      const fetchData = async (): Promise<void> => {
+        //get connection resolver
+        const connectionResolver = inflection.pluralize(model) + 'Connection';
+        //pagination
+        const batchStep = {
+          first: MAX_RECORD_LIMIT,
+          after: null,
+        };
+        let hasNextPage = true;
+        const records: number[] = [];
+        const MAX_TIME = 100000;
+        let PASSED_TIME = 0;
+        // timeout
+        while (hasNextPage && PASSED_TIME <= MAX_TIME) {
+          const startTime = new Date();
+          let res: any = await zendro.request(
+            `{${connectionResolver}( pagination: {first:${batchStep.first}${
+              batchStep.after ? ', after:"' + batchStep.after + '"' : ''
+            }}){
+            pageInfo{
+              hasNextPage
+              endCursor
+            }
+            ${inflection.pluralize(model)} {
+              ${attribute}
+            }        
+          }}`
+          );
+          res = res[connectionResolver];
+          records.push(
+            ...res[inflection.pluralize(model)].map((x: any) => x[attribute])
+          );
+          hasNextPage = res.pageInfo.hasNextPage;
+          batchStep['after'] = res.pageInfo.endCursor;
+          PASSED_TIME += Number(new Date()) - Number(startTime);
+        }
+        if (PASSED_TIME > MAX_TIME) {
+          showSnackbar(
+            `${t('warnings.exceed-time-limit', {
+              number: records.length,
+              modelName: model,
+            })}`,
+            'warning'
+          );
+        }
+        setData(records);
+      };
+      fetchData();
+    }
+  }, [attribute]);
+  return (
+    <div>
+      <FormControl sx={{ m: 1, minWidth: 120 }}>
+        <InputLabel id="model-select-helper-label">Model</InputLabel>
+        <Select
+          labelId="model-select-helper-label"
+          id="model-select-helper"
+          value={model}
+          label="Model"
+          onChange={handleChangeForModel}
+        >
+          {modelCandidates.map((x, index) => (
+            <MenuItem key={`${index}-${x}`} value={x}>
+              {x}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl sx={{ m: 1, minWidth: 120 }}>
+        <InputLabel id="attr-select-helper-label">Attribute</InputLabel>
+        <Select
+          labelId="attr-select-helper-label"
+          id="attr-select-helper"
+          value={attribute}
+          label="Attribute"
+          onChange={handleChangeForAttributes}
+        >
+          {attributeCandidates.map((x, index) => (
+            <MenuItem key={`${index}-${x}`} value={x}>
+              {x}
+            </MenuItem>
+          ))}
+        </Select>
+        <FormHelperText>{helperText}</FormHelperText>
+      </FormControl>
+    </div>
+  );
+}
