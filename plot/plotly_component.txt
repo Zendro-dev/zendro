@@ -1,0 +1,15 @@
+import React from 'react';
+import Plot from 'react-plotly.js';
+
+// define types of properties
+const CustomPlotlyPlot: React.FC<{ data: any }> = (props) => {
+  return (
+    <Plot
+      // plotly data object
+      data={props.data}
+      // other plot parameters
+    />
+  );
+};
+
+export default CustomPlotlyPlot;

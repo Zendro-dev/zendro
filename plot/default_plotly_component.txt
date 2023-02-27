@@ -1,0 +1,36 @@
+import React from 'react';
+import Plot from 'react-plotly.js';
+
+const DefaultPlotlyPlot: React.FC<{
+  data: any;
+  title?: string;
+  xTitle?: string;
+  yTitle?: string;
+  xTickAngle?: number;
+  yTickAngle?: number;
+}> = (props) => {
+  return (
+    <Plot
+      // plotly data object
+      data={props.data}
+      // plotly layout object
+      layout={{
+        title: props.title,
+        xaxis: {
+          title: props.xTitle,
+          tickangle: props.xTickAngle,
+          zeroline: false,
+        },
+        yaxis: {
+          title: props.yTitle,
+          tickangle: props.yTickAngle,
+          zeroline: false,
+        },
+      }}
+      // In case you want your plot to be resizable
+      useResizeHandler={true}
+    />
+  );
+};
+
+export default DefaultPlotlyPlot;
