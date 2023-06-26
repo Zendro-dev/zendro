@@ -5,7 +5,14 @@ const { promisify } = require("util");
 const download = promisify(require("download-git-repo"));
 const axios = require("axios");
 const difftool = require("diff");
+const path = require("path");
 require("dotenv").config({ path: __dirname + "/.env.migration" });
+
+/**
+ * Get path to yarn module
+ */
+module.exports.yarn = path.normalize(__dirname + "/node_modules/yarn");
+
 /**
  * Write log to console with magenta color.
  * @param {string} content the log content
