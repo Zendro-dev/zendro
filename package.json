@@ -29,6 +29,7 @@
     "ora": "^5.1.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.17.5",
+    "yarn": "^1.22",
     "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create#latest-stable",
     "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#latest-stable"
   },
