@@ -27,5 +27,6 @@
       "keysIn": "country"	 
     }
   },
-  "internalId": "city_id"
+  "internalId": "city_id",
+  "spaSearchOperator": "like"
 }
