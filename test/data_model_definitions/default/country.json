@@ -39,5 +39,6 @@
       "targetStorageType": "sql"
     }
   },
-  "internalId": "country_id"
+  "internalId": "country_id",
+  "spaSearchOperator": "like"
 }
