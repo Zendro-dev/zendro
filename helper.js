@@ -49,8 +49,12 @@ module.exports.spawn_console = async (...args) => {
     const proc = spawn(command, arg, options);
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
-    proc.on("close", () => {
-      resolve();
+    proc.on("error", (error) => {
+      console.error(chalk.red(`Failed to run "${command}": ${error.message}`));
+      resolve(null);
+    });
+    proc.on("close", (code) => {
+      resolve(code);
     });
   });
 };
@@ -68,8 +72,12 @@ module.exports.spawn_log = async (unref, ...args) => {
     if (unref) {
       proc.unref();
     }
-    proc.on("close", () => {
-      resolve();
+    proc.on("error", (error) => {
+      console.error(chalk.red(`Failed to run "${command}": ${error.message}`));
+      resolve(null);
+    });
+    proc.on("close", (code) => {
+      resolve(code);
     });
   });
 };

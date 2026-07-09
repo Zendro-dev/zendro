@@ -6,10 +6,13 @@ const collect = (value, previous) => {
 
 program.version(require("../package").version);
 
+const dockerize_option = new Option("-d, --dockerize", "include docker config files").default(false);
+const services = ["spa", "giql", "gqs"];
+
 program
   .command("new <name>")
   .description("create new Zendro project")
-  .option("-d, --dockerize", "include docker config files", false)
+  .addOption(dockerize_option)
   .action(require("../lib/new"));
 
 program
@@ -47,9 +50,7 @@ program
   .command("start")
   .description("start Zendro App")
   .addArgument(
-    new Argument("[service...]", "services to start (default: all)").choices(
-      ["gqs", "giql", "spa"]
-    )
+    new Argument("[service...]", "services to start").choices(services).default(services)
   )
   .option("-p, --prod", "production mode for SPA", false)
   .action(require("../lib/start"));
@@ -58,11 +59,7 @@ program
   .command("stop")
   .description("stop Zendro App")
   .addArgument(
-    new Argument("[service...]", "services to stop (default: all)").choices([
-      "gqs",
-      "giql",
-      "spa",
-    ])
+    new Argument("[service...]", "services to stop").choices(services).default(services)
   )
   .option("-p, --prod", "production mode", false)
   .action(require("../lib/stop"));
@@ -109,13 +106,21 @@ program
 program
   .command("set-up <name>")
   .description("set up a sandbox with default data models and SQLite")
-  .option("-d, --dockerize", "include docker config files", false)
+  .addOption(dockerize_option)
   .action(require("../lib/setup"));
+
+program
+  .command("rm <name>")
+  .description(
+    "delete a Zendro project, including its docker containers, project images and volumes"
+  )
+  .option("-f, --force", "skip the confirmation prompt", false)
+  .action(require("../lib/rm"));
 
 program
   .command("set-next-auth-secret")
   .description(
-    "set NEXTAUTH_SECRET for the single-page-app (spa) or graphiql-auth (giql) server"
+    "set NEXTAUTH_SECRET for the single-page-app (spa) or graphiql-auth (giql) server. Genrate a good secret e.g. via 'openssl rand -base64 32'."
   )
   .addArgument(
     new Argument("<service>", "target service").choices(["spa", "giql"])
