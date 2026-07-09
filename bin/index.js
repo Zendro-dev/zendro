@@ -126,6 +126,7 @@ program
     new Argument("<service>", "target service").choices(["spa", "giql"])
   )
   .argument("<secret>", "the new NEXTAUTH_SECRET value")
+  .addOption(new Option("-m, --modes <mode...>", "specify for which mode the secret should be used for").choices(["prod", "dev"]).default(["prod", "dev"]))
   .action(require("../lib/set_next_auth_secret"));
 
 program
