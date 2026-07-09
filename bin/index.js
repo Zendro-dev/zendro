@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { program, Option } = require("commander");
+const { program, Option, Argument } = require("commander");
 const collect = (value, previous) => {
   return previous.concat([value]);
 };
@@ -29,21 +29,41 @@ program
 program
   .command("dockerize")
   .description("dockerize Zendro App")
-  .option("-u, --up", "start docker service", false)
-  .option("-d, --down", "stop docker service", false)
+  .addOption(
+    new Option("-u, --up", "start docker service")
+      .default(false)
+      .conflicts("down")
+  )
+  .addOption(
+    new Option("-d, --down", "stop docker service")
+      .default(false)
+      .conflicts("up")
+  )
   .option("-p, --prod", "production mode", false)
   .option("-v, --volume", "remove volume and migration log", false)
   .action(require("../lib/dockerize"));
 
 program
-  .command("start [service...]")
+  .command("start")
   .description("start Zendro App")
+  .addArgument(
+    new Argument("[service...]", "services to start (default: all)").choices(
+      ["gqs", "giql", "spa"]
+    )
+  )
   .option("-p, --prod", "production mode for SPA", false)
   .action(require("../lib/start"));
 
 program
-  .command("stop [service...]")
+  .command("stop")
   .description("stop Zendro App")
+  .addArgument(
+    new Argument("[service...]", "services to stop (default: all)").choices([
+      "gqs",
+      "giql",
+      "spa",
+    ])
+  )
   .option("-p, --prod", "production mode", false)
   .action(require("../lib/stop"));
 
@@ -91,6 +111,17 @@ program
   .description("set up a sandbox with default data models and SQLite")
   .option("-d, --dockerize", "include docker config files", false)
   .action(require("../lib/setup"));
+
+program
+  .command("set-next-auth-secret")
+  .description(
+    "set NEXTAUTH_SECRET for the single-page-app (spa) or graphiql-auth (giql) server"
+  )
+  .addArgument(
+    new Argument("<service>", "target service").choices(["spa", "giql"])
+  )
+  .argument("<secret>", "the new NEXTAUTH_SECRET value")
+  .action(require("../lib/set_next_auth_secret"));
 
 program
   .command("create-plot")
