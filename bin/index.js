@@ -120,12 +120,12 @@ program
 program
   .command("set-next-auth-secret")
   .description(
-    "set NEXTAUTH_SECRET for the single-page-app (spa) or graphiql-auth (giql) server. Genrate a good secret e.g. via 'openssl rand -base64 32'."
+    "set the auth secret for the single-page-app (spa, NEXTAUTH_SECRET) or graphql-server (gqs, SESSION_SECRET - required once GRAPHIQL_AUTH_ENABLED is \"true\"). Genrate a good secret e.g. via 'openssl rand -base64 32'."
   )
   .addArgument(
-    new Argument("<service>", "target service").choices(["spa", "giql"])
+    new Argument("<service>", "target service").choices(["gqs", "spa"])
   )
-  .argument("<secret>", "the new NEXTAUTH_SECRET value")
+  .argument("<secret>", "the new secret value")
   .addOption(new Option("-m, --modes <mode...>", "specify for which mode the secret should be used for").choices(["prod", "dev"]).default(["prod", "dev"]))
   .action(require("../lib/set_next_auth_secret"));
 
