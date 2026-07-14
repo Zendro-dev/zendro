@@ -120,7 +120,7 @@ program
 program
   .command("set-next-auth-secret")
   .description(
-    "set the auth secret for the single-page-app (spa, NEXTAUTH_SECRET) or graphql-server (gqs, SESSION_SECRET - required once GRAPHIQL_AUTH_ENABLED is \"true\"). Genrate a good secret e.g. via 'openssl rand -base64 32'."
+    "set the auth secret for the single-page-app (spa, NEXTAUTH_SECRET) or graphql-server (gqs, SESSION_SECRET - required once AUTH_ENABLED is \"true\"). Genrate a good secret e.g. via 'openssl rand -base64 32'."
   )
   .addArgument(
     new Argument("<service>", "target service").choices(["gqs", "spa"])
