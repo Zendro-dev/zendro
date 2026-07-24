@@ -4,7 +4,8 @@
   "description": "Zendro Command Line Interface (CLI)",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --timeout 360000 ./test/integration.test.js"
+    "test": "mocha --timeout 360000 ./test/integration.test.js",
+    "test:extra": "mocha --timeout 30000 ./test/extra/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -16,26 +17,30 @@
     "url": "https://github.com/Zendro-dev/zendro/issues"
   },
   "homepage": "https://github.com/Zendro-dev/zendro#readme",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "axios": "^0.24.0",
+    "@e965/xlsx": "^0.20.3",
     "chalk": "^4.1.0",
     "commander": "^9.5.0",
     "dotenv": "^16.0.0",
-    "download-git-repo": "^3.0.2",
     "figlet": "^1.5.0",
     "fs-extra": "^10.1.0",
-    "graphql-server-model-codegen": "github:Zendro-dev/graphql-server-model-codegen#latest-stable",
+    "graphql-server-model-codegen": "git+https://github.com/Zendro-dev/graphql-server-model-codegen#latest-stable",
     "inflection": "^1.12.0",
     "ora": "^5.1.0",
-    "uuid": "^8.3.2",
-    "xlsx": "^0.17.5",
-    "yarn": "^1.22",
-    "zendro-bulk-create": "github:Zendro-dev/zendro-bulk-create#latest-stable",
-    "ZendroStarterPack": "github:Zendro-dev/ZendroStarterPack#latest-stable"
+    "simple-git": "^3.36.0",
+    "zendro-bulk-create": "git+https://github.com/Zendro-dev/zendro-bulk-create#latest-stable",
+    "ZendroStarterPack": "git+https://github.com/Zendro-dev/ZendroStarterPack#latest-stable"
   },
   "devDependencies": {
     "chai": "*",
     "mocha": "*"
+  },
+  "overrides": {
+    "diff": "^8.0.3",
+    "serialize-javascript": "^7.0.5"
   },
   "bin": {
     "zendro": "./bin/index.js"

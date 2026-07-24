@@ -8,6 +8,7 @@ program.version(require("../package").version);
 
 const dockerize_option = new Option("-d, --dockerize", "include docker config files").default(false);
 const services = ["spa", "giql", "gqs"];
+const services_arg = new Argument("[service...]", "services to start").choices(services).default(services);
 
 program
   .command("new <name>")
@@ -32,6 +33,7 @@ program
 program
   .command("dockerize")
   .description("dockerize Zendro App")
+  .addArgument(services_arg)
   .addOption(
     new Option("-u, --up", "start docker service")
       .default(false)
@@ -49,9 +51,7 @@ program
 program
   .command("start")
   .description("start Zendro App")
-  .addArgument(
-    new Argument("[service...]", "services to start").choices(services).default(services)
-  )
+  .addArgument(services_arg)
   .option("-p, --prod", "production mode for SPA", false)
   .action(require("../lib/start"));
 

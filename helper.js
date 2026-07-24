@@ -1,17 +1,10 @@
 const ora = require("ora");
 const { spawn } = require("child_process");
 const chalk = require("chalk");
-const { promisify } = require("util");
-const download = promisify(require("download-git-repo"));
-const axios = require("axios");
+const simpleGit = require("simple-git");
 const difftool = require("diff");
 const path = require("path");
 require("dotenv").config({ path: __dirname + "/.env.migration" });
-
-/**
- * Get path to yarn module
- */
-module.exports.yarn = path.normalize(__dirname + "/node_modules/yarn");
 
 /**
  * Write log to console with magenta color.
@@ -22,15 +15,16 @@ module.exports.log = (content) => console.log(chalk.magentaBright(content));
 /**
  * Download a repository with a elegant terminal spinner.
  * @param {string} repo the repository path in gitHub
- * @param {string} desc the destination of downloaded repository
+ * @param {string} dest the destination of downloaded repository
+ * @param {string} branch the branch or tag to download
  */
-module.exports.clone = async (repo, desc) => {
+module.exports.clone = async (repo, dest, branch) => {
   const process = ora(`Download ${repo}`);
-  console.log(desc);
+  console.log(dest);
 
   process.start();
   try {
-    await download(repo, desc);
+    await simpleGit().clone(repo, dest, ['--branch', branch, '--depth', '1', '--recurse-submodules']);
   } catch (error) {
     console.log(error);
     process.fail();
@@ -168,39 +162,44 @@ module.exports.axios_post = async (query) => {
     const password = process.env.PASSWORD;
     const url = process.env.REMOTE_URL;
     const id = process.env.CLIENT_ID;
-    let res;
+    let token;
     if (OAUTH2_TOKEN_URI && username && password && url && id) {
-      res = await axios({
-        method: "post",
-        url: OAUTH2_TOKEN_URI,
-        data: `username=${username}&password=${password}&grant_type=password&client_id=${id}`,
+      const tokenResponse = await fetch(OAUTH2_TOKEN_URI, {
+        method: "POST",
         headers: {
           "content-type": "application/x-www-form-urlencoded;charset=utf-8",
         },
+        body: `username=${username}&password=${password}&grant_type=password&client_id=${id}`,
       });
+      const tokenBody = await tokenResponse.json();
+      if (!tokenResponse.ok) {
+        throw tokenBody;
+      }
+      token = tokenBody.access_token;
     }
 
     let headers = {
       "Content-Type": "application/json",
       Accept: "application/graphql",
     };
-    if (res && res.data) {
-      const token = res.data.access_token;
+    if (token) {
       headers["authorization"] = "Bearer " + token;
     }
-    const response = await axios.post(
-      url,
-      { query: query },
-      {
-        headers: headers,
-      }
-    );
-    return response;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({ query: query }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw data;
+    }
+    return { data };
   } catch (error) {
-    if (error.response && error.response.data) {
-      throw error.response.data;
-    } else {
+    if (error instanceof Error) {
       throw new Error(error);
+    } else {
+      throw error;
     }
   }
 };
