@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const { program, Option, Argument } = require("commander");
+const default_refs = require("../zendro_dependencies.json");
 const collect = (value, previous) => {
   return previous.concat([value]);
 };
@@ -10,10 +11,30 @@ const dockerize_option = new Option("-d, --dockerize", "include docker config fi
 const services = ["spa", "giql", "gqs"];
 const services_arg = new Argument("[service...]", "services to start").choices(services).default(services);
 
+// Which git branch or tag of each repo `new`/`set-up` clone - defaults come
+// from zendro_dependencies.json, but are overridable here so a global
+// `npm install -g git+https://github.com/Zendro-dev/zendro.git` install (no
+// local clone to edit that file in) can still pin specific versions.
+const spa_ref_option = new Option(
+  "--spa-ref <ref>",
+  "git branch or tag of single-page-app to clone"
+).default(default_refs["single-page-app"]);
+const gqs_ref_option = new Option(
+  "--gqs-ref <ref>",
+  "git branch or tag of graphql-server to clone"
+).default(default_refs["graphql-server"]);
+const giql_ref_option = new Option(
+  "--giql-ref <ref>",
+  "git branch or tag of graphiql-auth to clone"
+).default(default_refs["graphiql-auth"]);
+
 program
   .command("new <name>")
   .description("create new Zendro project")
   .addOption(dockerize_option)
+  .addOption(spa_ref_option)
+  .addOption(gqs_ref_option)
+  .addOption(giql_ref_option)
   .action(require("../lib/new"));
 
 program
@@ -107,6 +128,9 @@ program
   .command("set-up <name>")
   .description("set up a sandbox with default data models and SQLite")
   .addOption(dockerize_option)
+  .addOption(spa_ref_option)
+  .addOption(gqs_ref_option)
+  .addOption(giql_ref_option)
   .action(require("../lib/setup"));
 
 program
