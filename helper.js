@@ -77,6 +77,26 @@ module.exports.spawn_log = async (unref, ...args) => {
 };
 
 /**
+ * Spawn a detached, long-running service (e.g. a dev/prod server) and return
+ * the ChildProcess synchronously so the caller can persist its pid. Unlike
+ * spawn_log this does NOT await close - the process is expected to keep
+ * running - it only wires up error logging. The child is made a process-group
+ * leader (detached) so it and its own children can later be stopped together.
+ * @param {...} args the command, its arguments and spawn options
+ * @returns {import('child_process').ChildProcess} the spawned child
+ */
+module.exports.spawn_unref = (...args) => {
+  let [command, arg, options] = args;
+  options = { ...options, shell: process.platform == "win32", detached: true };
+  const proc = spawn(command, arg, options);
+  proc.unref();
+  proc.on("error", (error) => {
+    console.error(chalk.red(`Failed to run "${command}": ${error.message}`));
+  });
+  return proc;
+};
+
+/**
  * Execute Shell commands and save the output as JS string
  * @param {string} cmd1 the first command
  * @param {[string]} arg1 the arguments for the first command
